@@ -4,17 +4,17 @@ module.exports = (sequelize, DataTypes) => {
     id: {
       primaryKey: true,
       type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4
+      defaultValue: DataTypes.UUIDV4,
     },
     publicId: {
       unique: true,
       allowNull: false,
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
     },
     name: {
       allowNull: false,
-      type: DataTypes.STRING
-    }
+      type: DataTypes.STRING,
+    },
   }, {});
   Company.associate = function(models) {
     // associations can be defined here

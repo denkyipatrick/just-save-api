@@ -5,22 +5,22 @@ module.exports = {
       id: {
         primaryKey: true,
         type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4
+        defaultValue: Sequelize.UUIDV4,
       },
       lookupKey: {
         unique: true,
         allowNull: false,
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       name: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       quantity: {
         type: Sequelize.INTEGER,
-        defaultValue: 0
+        defaultValue: 0,
       },
       unitPrice: {
-        type: Sequelize.DOUBLE(10, 2)
+        type: Sequelize.DOUBLE(10, 2),
       },
       companyId: {
         type: Sequelize.UUID,
@@ -28,22 +28,22 @@ module.exports = {
         onUpdate: 'CASCADE',
         references: {
           model: 'Companies',
-          key: 'id'
-        }
+          key: 'id',
+        },
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.BIGINT,
-        defaultValue: new Date().getTime()
+        defaultValue: new Date().getTime(),
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.BIGINT,
-        defaultValue: new Date().getTime()
-      }
+        defaultValue: new Date().getTime(),
+      },
     });
   },
   down: (queryInterface, Sequelize) => {
     return queryInterface.dropTable('Products');
-  }
+  },
 };

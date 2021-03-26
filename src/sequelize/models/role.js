@@ -6,21 +6,21 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
     },
     displayName: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
     },
     group: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
     },
     createdAt: {
       allowNull: false,
       type: DataTypes.BIGINT,
-      defaultValue: new Date().getTime()
+      defaultValue: new Date().getTime(),
     },
     updatedAt: {
       allowNull: false,
       type: DataTypes.BIGINT,
-      defaultValue: new Date().getTime()
-    }
+      defaultValue: new Date().getTime(),
+    },
   }, {});
   Role.associate = function(models) {
     // associations can be defined here

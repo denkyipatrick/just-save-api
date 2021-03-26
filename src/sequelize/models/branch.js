@@ -4,36 +4,36 @@ module.exports = (sequelize, DataTypes) => {
     id: {
       primaryKey: true,
       type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4
+      defaultValue: DataTypes.UUIDV4,
     },
     companyId: {
       allowNull: false,
-      type: DataTypes.UUID
+      type: DataTypes.UUID,
     },
     name: {
       allowNull: false,
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
     },
     address: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
     },
     createdAt: {
       allowNull: false,
       type: DataTypes.BIGINT,
-      defaultValue: new Date().getTime()
+      defaultValue: new Date().getTime(),
     },
     updatedAt: {
       allowNull: false,
       type: DataTypes.BIGINT,
-      defaultValue: new Date().getTime()
-    }
+      defaultValue: new Date().getTime(),
+    },
   }, {});
   Branch.associate = function(models) {
     // associations can be defined here
     Branch.belongsTo(models.Company, {
       as: 'company',
-      foreignKey: 'companyId'
-    })
+      foreignKey: 'companyId',
+    });
   };
   return Branch;
 };

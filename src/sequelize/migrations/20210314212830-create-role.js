@@ -7,24 +7,24 @@ module.exports = {
         primaryKey: true,
       },
       displayName: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       group: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.BIGINT,
-        defaultValue: new Date().getTime()
+        defaultValue: new Date().getTime(),
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.BIGINT,
-        defaultValue: new Date().getTime()
-      }
+        defaultValue: new Date().getTime(),
+      },
     });
   },
   down: (queryInterface, Sequelize) => {
     return queryInterface.dropTable('Roles');
-  }
+  },
 };

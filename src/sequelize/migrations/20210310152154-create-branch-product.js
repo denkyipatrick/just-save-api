@@ -8,8 +8,8 @@ module.exports = {
         type: Sequelize.UUID,
         references: {
           model: 'Branches',
-          key: 'id'
-        }
+          key: 'id',
+        },
       },
       productId: {
         primaryKey: true,
@@ -17,26 +17,26 @@ module.exports = {
         type: Sequelize.UUID,
         references: {
           model: 'Products',
-          key: 'id'
-        }
+          key: 'id',
+        },
       },
       quantity: {
         type: Sequelize.INTEGER,
-        defaultValue: 0
+        defaultValue: 0,
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.BIGINT,
-        defaultValue: new Date().getTime()
+        defaultValue: new Date().getTime(),
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.BIGINT,
-        defaultValue: new Date().getTime()
-      }
+        defaultValue: new Date().getTime(),
+      },
     });
   },
   down: (queryInterface, Sequelize) => {
     return queryInterface.dropTable('BranchProducts');
-  }
+  },
 };

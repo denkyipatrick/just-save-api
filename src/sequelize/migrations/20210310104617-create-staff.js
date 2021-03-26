@@ -4,13 +4,13 @@ module.exports = {
     return queryInterface.createTable('Staffs', {
       username: {
         primaryKey: true,
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       firstName: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       lastName: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       branchId: {
         type: Sequelize.UUID,
@@ -18,25 +18,25 @@ module.exports = {
         onUpdate: 'CASCADE',
         references: {
           key: 'id',
-          model: 'Branches'
-        }
+          model: 'Branches',
+        },
       },
       password: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.BIGINT,
-        defaultValue: new Date().getTime()
+        defaultValue: new Date().getTime(),
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.BIGINT,
-        defaultValue: new Date().getTime()
-      }
+        defaultValue: new Date().getTime(),
+      },
     });
   },
   down: (queryInterface, Sequelize) => {
     return queryInterface.dropTable('Staffs');
-  }
+  },
 };

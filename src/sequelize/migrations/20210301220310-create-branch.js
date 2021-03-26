@@ -5,7 +5,7 @@ module.exports = {
       id: {
         primaryKey: true,
         type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4
+        defaultValue: Sequelize.UUIDV4,
       },
       companyId: {
         type: Sequelize.UUID,
@@ -13,29 +13,29 @@ module.exports = {
         onUpdate: 'CASCADE',
         references: {
           model: 'Companies',
-          key: 'id'
-        }
+          key: 'id',
+        },
       },
       name: {
         allowNull: false,
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       address: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.BIGINT,
-        defaultValue: new Date().getTime()
+        defaultValue: new Date().getTime(),
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.BIGINT,
-        defaultValue: new Date().getTime()
-      }
+        defaultValue: new Date().getTime(),
+      },
     });
   },
   down: (queryInterface, Sequelize) => {
     return queryInterface.dropTable('Branches');
-  }
+  },
 };

@@ -11,14 +11,14 @@ module.exports = {
     */
     return queryInterface.addColumn('Products', 'costPrice', {
       type: Sequelize.DOUBLE(16, 5),
-      defaultValue: 0.00
+      defaultValue: 0.00,
     })
-    .then(() => {
-      return queryInterface.addColumn('Products', 'sellingPrice', {
-        type: Sequelize.DOUBLE(16, 5),
-        defaultValue: 0.00
-      })
-    });
+      .then(() => {
+        return queryInterface.addColumn('Products', 'sellingPrice', {
+          type: Sequelize.DOUBLE(16, 5),
+          defaultValue: 0.00,
+        });
+      });
   },
 
   down: (queryInterface, Sequelize) => {
@@ -30,8 +30,8 @@ module.exports = {
       return queryInterface.dropTable('users');
     */
     return queryInterface.removeColumn('Products', 'costPrice')
-    .then(() => {
-      return queryInterface.removeColumn('Products', 'sellingPrice')
-    });
-  }
+      .then(() => {
+        return queryInterface.removeColumn('Products', 'sellingPrice');
+      });
+  },
 };
