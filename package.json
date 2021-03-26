@@ -1,0 +1,27 @@
+{
+  "name": "zoma_and_sons",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@hapi/joi": "^15.1.1",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-validator": "^6.6.1",
+    "joi-phone-number": "^3.0.2",
+    "jsonwebtoken": "^8.5.1",
+    "mysql2": "^2.1.0",
+    "sequelize": "^5.21.3"
+  },
+  "devDependencies": {
+    "dotenv": "^8.2.0"
+  },
+  "scripts": {
+    "start": "nodemon -r dotenv/config ./src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Tulio Data Center (TDC)",
+  "license": "ISC"
+}
