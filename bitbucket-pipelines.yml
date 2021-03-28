@@ -14,5 +14,4 @@ pipelines:
               - node
             script:
               - npm install
-              - npm test- echo "Deploying to production environment"
-              - pipe: atlassian/ssh-run:0.2.2
+              - npm test
