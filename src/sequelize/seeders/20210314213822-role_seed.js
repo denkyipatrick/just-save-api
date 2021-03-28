@@ -21,6 +21,20 @@ module.exports = {
         updatedAt: new Date().getTime(),
       },
       {
+        id: 'edit-product',
+        displayName: 'Edit Product Name & Quantity',
+        group: 'product',
+        createdAt: new Date().getTime(),
+        updatedAt: new Date().getTime(),
+      },
+      {
+        id: 'edit-product-price',
+        displayName: 'Edit Product Price',
+        group: 'product',
+        createdAt: new Date().getTime(),
+        updatedAt: new Date().getTime(),
+      },
+      {
         id: 'delete-product',
         displayName: 'Delete Product',
         group: 'product',

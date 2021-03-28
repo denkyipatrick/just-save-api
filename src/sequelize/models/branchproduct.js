@@ -18,12 +18,12 @@ module.exports = (sequelize, DataTypes) => {
     createdAt: {
       allowNull: false,
       type: DataTypes.BIGINT,
-      defaultValue: new Date().getTime(),
+      defaultValue: new Date().getTime()
     },
     updatedAt: {
       allowNull: false,
       type: DataTypes.BIGINT,
-      defaultValue: new Date().getTime(),
+      defaultValue: new Date().getTime()
     },
   }, {});
   BranchProduct.associate = function(models) {
@@ -32,6 +32,11 @@ module.exports = (sequelize, DataTypes) => {
       as: 'branch',
       foreignKey: 'branchId',
     });
+
+    BranchProduct.belongsTo(models.Product, {
+      as: 'product',
+      foreignKey: 'productId'
+    })
   };
   return BranchProduct;
 };

@@ -48,6 +48,11 @@ module.exports = (sequelize, DataTypes) => {
       through: models.BranchProduct,
     });
 
+    Product.belongsTo(models.Company, {
+      as: 'company',
+      foreignKey: 'companyId'
+    });
+
     Product.hasMany(models.BranchProduct, {
       as: 'productBranches',
       foreignKey: 'productId',

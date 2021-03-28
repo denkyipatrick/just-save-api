@@ -12,8 +12,8 @@ module.exports = {
   },
   test: {
     username: 'root',
-    password: null,
-    database: 'just_save_test_db',
+    password: 'Tjnqmf%root2018',
+    database: 'just_save_test_db_1',
     host: '127.0.0.1',
     dialect: 'mysql',
     logging: false,
