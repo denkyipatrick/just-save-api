@@ -69,7 +69,7 @@ module.exports = app => {
       const staff = await Staff.create({
         branchId: req.body.branchId,
         lastName: 'Root',
-        username: 'root',
+        username: 'root_hgl',
         firstName: 'Root',
         password: bcryptjs.hashSync('root', 10),
       }, { transaction: sequelizeTransaction });
