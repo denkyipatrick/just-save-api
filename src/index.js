@@ -4,15 +4,18 @@ const express = require('express');
 const fs = require('fs');
 const cors = require('cors');
 const https = require('https');
-const morgan = require('morgan');
 
 const application = express();
 
 application.use(cors());
-application.use(morgan('dev'));
 application.use(express.json());
 application.disable('x-powered-by');
 application.set('port', process.env.NODE_PORT);
+
+if (process.env.NODE_ENV === 'development') {
+  const morgan = require('morgan');
+  application.use(morgan('dev'));
+}
 
 // import routes
 require('./routes/role.routes')(application);

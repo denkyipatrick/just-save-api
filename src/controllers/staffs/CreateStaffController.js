@@ -1,7 +1,7 @@
 'use strict';
 
 const bcryptjs = require('bcryptjs');
-const { NewStaff, StaffBranch, StaffRole, sequelize } = require('../../sequelize/models/index');
+const { NewStaff, StaffBranch, NewStaffRole, sequelize } = require('../../sequelize/models/index');
 
 module.exports = class CreateStaffController {
     static async create(req, res) {
@@ -22,7 +22,7 @@ module.exports = class CreateStaffController {
                 branchId: req.body.branchId
             }, { transaction: sequelizeTransaction });
 
-            await StaffRole.create({
+            await NewStaffRole.create({
                 staffId: staff.id,
                 roleId: 'view-product',
             }, { transaction: sequelizeTransaction });
