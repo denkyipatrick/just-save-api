@@ -1,26 +1,26 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const StaffBranch = sequelize.define('StaffBranch', {
+  const NewStaffRole = sequelize.define('NewStaffRole', {
     id: {
       primaryKey: true,
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4
     },
-    branchId: {
-      allowNull: false,
-      type: DataTypes.UUID
-    },
     staffId: {
       allowNull: false,
       type: DataTypes.UUID
     },
-  }, {});
-  StaffBranch.associate = function(models) {
+    roleId: {
+      allowNull: false,
+      type: DataTypes.STRING
+    },
+  }, { timestamps: false });
+  NewStaffRole.associate = function(models) {
     // associations can be defined here
-    StaffBranch.belongsTo(models.Branch, {
-      as: 'branch',
-      foreignKey: 'branchId'
+    NewStaffRole.belongsTo(models.Role, {
+      as: 'role',
+      foreignKey: 'roleId'
     });
   };
-  return StaffBranch;
+  return NewStaffRole;
 };

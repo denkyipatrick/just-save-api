@@ -3,15 +3,20 @@
 const BASE_URL = process.env.BASE_URL;
 const STAFF_URL = `${BASE_URL}/staff`;
 const bcryptjs = require('bcryptjs');
-const { Branch, Staff, sequelize, Role, StaffRole } =
+const { Branch, Staff, NewStaff, StaffBranch, sequelize, Role, StaffRole } =
     require('../sequelize/models/index');
+
+const controllers = require('../controllers/index');
 
 module.exports = app => {
   app.get(`${STAFF_URL}`, async(req, res) => {
     try {
-      const staffList = await Staff.findAll({
+      const staffList = await NewStaff.findAll({
         order: [['firstName', 'ASC'], ['lastName', 'ASC']],
-        include: ['roles'],
+        include: [
+          'roles',
+          { model: StaffBranch, as: 'staffBranch', include: ['branch'] }
+        ]
       });
 
       res.send(staffList);
@@ -21,11 +26,14 @@ module.exports = app => {
     }
   });
 
-  app.get(`${STAFF_URL}/:username`, async(req, res) => {
+  app.get(`${STAFF_URL}/:id`, async(req, res) => {
     try {
-      const staff = await Staff.findByPk(req.params.username, {
+      const staff = await NewStaff.findByPk(req.params.id, {
         order: [['firstName', 'ASC'], ['lastName', 'ASC']],
-        include: ['roles', 'branch'],
+        include: [
+          'roles',
+          { model: StaffBranch, as: 'staffBranch', include: ['branch'] }
+        ],
       });
 
       res.send(staff);
@@ -35,7 +43,9 @@ module.exports = app => {
     }
   });
 
-  app.post(`${STAFF_URL}`, async(req, res) => {
+  app.post(`${STAFF_URL}`, controllers.CreateStaffController.create)
+
+  app.post(`${STAFF_URL}/lskd/sldfk`, async(req, res) => {
     console.log(req.body);
     const sequelizeTransaction = await sequelize.transaction();
 
@@ -66,10 +76,10 @@ module.exports = app => {
     const sequelizeTransaction = await sequelize.transaction();
 
     try {
-      const staff = await Staff.create({
-        branchId: req.body.branchId,
+      const staff = await NewStaff.create({
+        companyId: req.body.companyId,
         lastName: 'Root',
-        username: 'root_hgl',
+        username: 'root',
         firstName: 'Root',
         password: bcryptjs.hashSync('root', 10),
       }, { transaction: sequelizeTransaction });
@@ -79,18 +89,18 @@ module.exports = app => {
         transaction: sequelizeTransaction,
       });
 
-      await StaffRole.destroy({
+      await NewStaffRole.destroy({
         where: {
-          staffUsername: staff.username,
+          staffId: staff.id,
         },
         transaction: sequelizeTransaction,
       });
 
       const newRoles = roles.map(role => {
-        return {roleId: role.id, staffUsername: staff.username };
+        return {roleId: role.id, staffId: staff.id };
       });
 
-      await StaffRole.bulkCreate(newRoles,
+      await NewStaffRole.bulkCreate(newRoles,
         { transaction: sequelizeTransaction });
 
       res.status(201).send(staff);
@@ -105,13 +115,18 @@ module.exports = app => {
   app.post(`${STAFF_URL}/auth`, async(req, res) => {
     console.log(req.body);
     try {
-      const staff = await Staff.findOne({
+      const staff = await NewStaff.findOne({
         where: {
           username: req.body.username,
+          companyId: req.body.companyId
         },
         include: [
           'roles',
-          { model: Branch, as: 'branch', include: ['company'] },
+          { model: StaffBranch, as: 'staffBranch',
+            include: [
+              { model: Branch, as: 'branch', include: ['company'] }
+            ]
+          },
         ],
       });
 
@@ -119,25 +134,26 @@ module.exports = app => {
         return res.status(404).send();
       }
 
-      res.send(staff);
+      console.log(staff);
 
+      res.send(staff);
     } catch (error) {
       res.sendStatus(500);
       console.error(error);
     }
   });
 
-  app.put(`${STAFF_URL}/:username/change-name`, async(req, res) => {
+  app.put(`${STAFF_URL}/:staffId/change-name`, async(req, res) => {
     try {
-      const staff = await Staff.update({
+      const staff = await NewStaff.update({
         lastName: req.body.lastName,
         firstName: req.body.firstName,
       }, {
         where: {
-          username: req.params.username,
+          id: req.params.staffId,
         },
       })
-        .then(() => Staff.findByPk(req.params.username));
+        .then(() => Staff.findByPk(req.params.staffId));
 
       res.send(staff);
     } catch (error) {

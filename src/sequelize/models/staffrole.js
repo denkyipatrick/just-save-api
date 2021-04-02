@@ -1,7 +1,7 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const StaffRole = sequelize.define('StaffRole', {
-    staffUsername: {
+    staffId: {
       primaryKey: true,
       type: DataTypes.STRING,
     },
@@ -22,7 +22,10 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   StaffRole.associate = function(models) {
     // associations can be defined here
-
+    // StaffRole.belongsTo(models.NewStaff, {
+    //   as: 'staff',
+    //   foreignKey: 'staffId'
+    // });
   };
   return StaffRole;
 };

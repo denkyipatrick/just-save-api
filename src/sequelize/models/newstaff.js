@@ -15,9 +15,6 @@ module.exports = (sequelize, DataTypes) => {
     lastName: {
       type: DataTypes.STRING,
     },
-    branchId: {
-      type: DataTypes.UUID,
-    },
     password: {
       type: DataTypes.STRING,
     },
@@ -40,13 +37,15 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     NewStaff.hasOne(models.StaffBranch, {
-      as: 'branch',
+      as: 'staffBranch',
       foreignKey: 'staffId'
     });
 
     NewStaff.belongsToMany(models.Role, {
       as: 'roles',
-      through: models.StaffRole,
+      foreignKey: 'staffId',
+      otherKey: 'roleId',
+      through: models.NewStaffRole,
     });
   };
   return NewStaff;

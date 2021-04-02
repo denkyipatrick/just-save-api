@@ -1,15 +1,19 @@
 'use strict';
 
-const { Staff } = require('../../sequelize/models/index');
+const { NewStaff } = require('../../sequelize/models/index');
 
 module.exports = class FetchBranchStaffs {
   static async fetchAllStaffs(req, res) {
     try {
-      const staffList = await Staff.findAll({
+      const staffList = await NewStaff.findAll({
         order: [['firstName', 'ASC'], ['lastName', 'ASC']],
-        include: ['roles'],
+        include: [
+          'roles',
+          'staffBranch'
+        ],
         where: {
-          branchId: req.params.branchId,
+          // branchId: req.params.branchId,
+          "$staffBranch.branchId$": req.params.branchId
         },
       });
 

@@ -2,15 +2,15 @@
 
 const BASE_URL = process.env.BASE_URL;
 const STAFF_ROLES_URL = `${BASE_URL}/staffroles`;
-const { StaffRole, Role } = require('../sequelize/models/index');
+const { NewStaffRole, StaffRole, Role } = require('../sequelize/models/index');
 
 module.exports = app => {
   app.post(`${STAFF_ROLES_URL}`, async(req, res) => {
     console.log(req.body);
     try {
-      await StaffRole.create({
+      await NewStaffRole.create({
         roleId: req.body.roleId,
-        staffUsername: req.body.staffUsername,
+        staffId: req.body.staffId,
       });
 
       const role = await Role.findByPk(req.body.roleId);
@@ -21,18 +21,21 @@ module.exports = app => {
     }
   });
 
-  app.delete(`${STAFF_ROLES_URL}/:staffUsername/:roleId`, async(req, res) => {
+  app.delete(`${STAFF_ROLES_URL}/:staffRoleId`, async(req, res) => {
     console.log(req.params);
     try {
-      await StaffRole.destroy({
+
+      const newStaffRole = await NewStaffRole.findByPk(req.params.staffRoleId, {
+        include: ['role']
+      });
+
+      await NewStaffRole.destroy({
         where: {
-          roleId: req.params.roleId,
-          staffUsername: req.params.staffUsername,
+          id: req.params.staffRoleId
         },
       });
 
-      const role = await Role.findByPk(req.params.roleId);
-      res.send(role);
+      res.send(newStaffRole.role);
     } catch (error) {
       res.sendStatus(500);
       console.error(error);
