@@ -20,6 +20,7 @@ if (process.env.NODE_ENV === 'development') {
 // import routes
 require('./routes/role.routes')(application);
 require('./routes/staff.routes')(application);
+require('./routes/orders.routes')(application);
 require('./routes/branch.routes')(application);
 require('./routes/company.routes')(application);
 require('./routes/product.routes')(application);
