@@ -7,15 +7,6 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4
       },
-      staffId: {
-        type: Sequelize.UUID,
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
-        references: {
-          key: 'id',
-          model: 'NewStaffs'
-        }
-      },
       companyId: {
         type: Sequelize.UUID,
         onDelete: 'CASCADE',
@@ -23,6 +14,24 @@ module.exports = {
         references: {
           key: 'id',
           model: 'Companies'
+        }
+      },
+      branchId: {
+        type: Sequelize.UUID,
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE',
+        references: {
+          key: 'id',
+          model: 'Branches'
+        }
+      },
+      staffId: {
+        type: Sequelize.UUID,
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE',
+        references: {
+          key: 'id',
+          model: 'NewStaffs'
         }
       },
       createdAt: {

@@ -25,24 +25,28 @@ module.exports = {
           model: 'Products'
         }
       },
-      orderCostPrice: {
-        type: Sequelize.DOUBLE
+      productBranchId: {
+        type: Sequelize.UUID,
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE',
+        references: {
+          key: 'id',
+          model: 'Branches'
+        }
       },
-      orderSellingPrice: {
-        type: Sequelize.DOUBLE
+      orderItemCostPrice: {
+        type: Sequelize.DOUBLE,
+        defaultValue: 0.0
+      },
+      orderItemSellingPrice: {
+        type: Sequelize.DOUBLE,
+        defaultValue: 0.0
       },
       quantityOrdered: {
-        type: Sequelize.INTEGER
-      },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.INTEGER,
+        defaultValue: 0
       }
-    });
+    }, { timestamps: false });
   },
   down: (queryInterface, Sequelize) => {
     return queryInterface.dropTable('OrderItems');

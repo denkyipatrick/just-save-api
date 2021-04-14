@@ -5,6 +5,8 @@ const COMPANIES_URL = `${process.env.BASE_URL}/companies`;
 const { Company, Branch, Product, BranchProduct, Sequelize } =
     require('../sequelize/models/index');
 
+const controllers = require('../controllers/index');
+
 module.exports = app => {
   app.get(COMPANIES_URL, async(req, res) => {
     try {
@@ -38,6 +40,8 @@ module.exports = app => {
       console.error(error);
     }
   });
+
+  app.get(`${COMPANIES_URL}/:companyId/orders`, controllers.FetchCompanyOrdersController.fetchAll);
 
   app.get(`${COMPANIES_URL}/:id/branches`, async(req, res) => {
     console.log(req.params);
