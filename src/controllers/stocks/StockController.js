@@ -1,5 +1,6 @@
 'use strict';
 
+const { validationResult } = require('express-validator');
 const { Stock, StockItem } = require('../../sequelize/models/index');
 
 module.exports = class StockController {
@@ -11,7 +12,19 @@ module.exports = class StockController {
         res.send(await Stock.findByPk(req.params.id));
     }
 
+    static async fetchBranchStocks(req, res) {
+        res.send(await Stock.findAll({
+            where: { branchId: req.params.id }
+        }));
+    }
+
     static async createStock(req, res) {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(500).send(errors);
+        }
+
         try {
             const stock = await Stock.create({
                 isOpened: true,

@@ -25,6 +25,7 @@ require('./routes/order.routes')(application);
 require('./routes/branch.routes')(application);
 require('./routes/company.routes')(application);
 require('./routes/product.routes')(application);
+require('./routes/stockitem.routes')(application);
 require('./routes/staffrole.routes')(application);
 require('./routes/branchproduct.routes')(application);
 
