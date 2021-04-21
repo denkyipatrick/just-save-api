@@ -14,7 +14,6 @@ module.exports = class CreateOrderController {
   static async create(req, res) {
     const sequelizeTransaction = await sequelize.transaction();
     try {
-      // console.log(req.body.items);
       let someItemsAreInsufficient = false;
       let insufficientQuantityErrorMessages = [];
 
@@ -28,8 +27,6 @@ module.exports = class CreateOrderController {
           include: ['product']
         });
 
-        console.log(branchProduct.quantity, item.quantity)
-
         if (branchProduct.quantity < item.quantity) {
           someItemsAreInsufficient = true;
           const errorMessage = {
@@ -38,7 +35,6 @@ module.exports = class CreateOrderController {
           }
 
           insufficientQuantityErrorMessages.push(errorMessage)
-          console.log('you do not have enough of this item.');
         }
       }
 
@@ -65,13 +61,16 @@ module.exports = class CreateOrderController {
       const cartItems = req.body.items.map(item => {
         return {
           orderId: order.id,
-          quantityOrdered: item.quantity,
+          salePrice: +item.soldPrice,
+          quantityOrdered: +item.quantity,
           productId: item.branchProduct.product.id,
           productBranchId: item.branchProduct.branchId,
-          orderItemCostPrice: item.branchProduct.product.costPrice,
-          orderItemSellingPrice: item.branchProduct.product.sellingPrice
+          orderItemCostPrice: +item.branchProduct.product.costPrice,
+          orderItemSellingPrice: +item.branchProduct.product.sellingPrice
         }
       });
+
+      console.log(cartItems);
 
       const orderedItems = await OrderItem.bulkCreate(cartItems, {
         transaction: sequelizeTransaction
@@ -101,7 +100,6 @@ module.exports = class CreateOrderController {
       }
 
       order.setDataValue('items', orderedItems);
-      // sequelizeTransaction.rollback();
       sequelizeTransaction.commit();
       res.status(201).send(order);
     } catch (error) {
