@@ -134,8 +134,6 @@ module.exports = app => {
         return res.status(404).send();
       }
 
-      console.log(staff);
-
       res.send(staff);
     } catch (error) {
       res.sendStatus(500);
