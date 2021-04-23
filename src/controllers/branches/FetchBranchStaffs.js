@@ -5,6 +5,7 @@ const { NewStaff } = require('../../sequelize/models/index');
 module.exports = class FetchBranchStaffs {
   static async fetchAllStaffs(req, res) {
     try {
+      console.log(req.params);
       const staffList = await NewStaff.findAll({
         order: [['firstName', 'ASC'], ['lastName', 'ASC']],
         include: [
@@ -12,7 +13,6 @@ module.exports = class FetchBranchStaffs {
           'staffBranch'
         ],
         where: {
-          // branchId: req.params.branchId,
           "$staffBranch.branchId$": req.params.branchId
         },
       });

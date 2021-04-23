@@ -9,12 +9,25 @@ module.exports = class StockController {
     }
 
     static async fetchOne(req, res) {
-        res.send(await Stock.findByPk(req.params.id));
+        try {
+            const stock = await Stock.findByPk(req.params.id, {
+                include: [
+                    'branch',
+                    { model: StockItem, as: 'items', include: ['product'] }
+                ]
+            });
+
+            res.send(stock);
+        } catch(error) {
+            res.sendStatus(500);
+            console.error(error);
+        }
     }
 
     static async fetchBranchStocks(req, res) {
         res.send(await Stock.findAll({
-            where: { branchId: req.params.id }
+            where: { branchId: req.params.id },
+            order: [['createdAt', 'DESC']]
         }));
     }
 
@@ -22,7 +35,8 @@ module.exports = class StockController {
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
-            return res.status(500).send(errors);
+            console.log(errors);
+            return res.status(400).send(errors);
         }
 
         try {
@@ -40,13 +54,15 @@ module.exports = class StockController {
 
     static async closeStock(req, res) {
         try {
+            console.log(req.params);
             const stock = await Stock.update({
                 isOpened: false
             }, {
                 where: {
                     id: req.params.id
                 }
-            });
+            })
+            .then(() => Stock.findByPk(req.params.id));
 
             res.send(stock);
         } catch(error) {

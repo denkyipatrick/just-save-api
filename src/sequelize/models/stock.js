@@ -9,6 +9,9 @@ module.exports = (sequelize, DataTypes) => {
     branchId: {
       type: DataTypes.UUID
     },
+    companyId: {
+      type: DataTypes.UUID
+    },
     isOpened: {
       defaultValue: false,
       type: DataTypes.BOOLEAN
@@ -16,6 +19,17 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   Stock.associate = function(models) {
     // associations can be defined here
+    Stock.hasMany(models.StockItem, {
+      as: 'items'
+    });
+
+    Stock.belongsTo(models.Branch, {
+      as: 'branch'
+    });
+
+    Stock.belongsTo(models.Company, {
+      as: 'company'
+    });
   };
   return Stock;
 };

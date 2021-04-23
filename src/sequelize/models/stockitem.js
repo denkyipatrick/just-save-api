@@ -18,6 +18,9 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   StockItem.associate = function(models) {
     // associations can be defined here
+    StockItem.belongsTo(models.Product, {
+      as: 'product'
+    });
   };
   return StockItem;
 };

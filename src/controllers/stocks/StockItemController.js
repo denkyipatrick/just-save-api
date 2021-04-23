@@ -1,10 +1,19 @@
 'use strict';
 
-const { Stock, StockItem, Branch, sequelize } = require('../../sequelize/models/index');
+const {
+  Stock,
+  Branch,
+  Product,
+  sequelize,
+  Sequelize,
+  StockItem,
+  BranchProduct,
+} = require('../../sequelize/models/index');
 
 module.exports = class StockController {
     static async createStockItem(req, res) {
         const sequelizeTransaction = await sequelize.transaction();
+        console.log(req.body);
 
         try {
             const stock = await Stock.findByPk(req.body.stockId, {
@@ -61,15 +70,17 @@ module.exports = class StockController {
 
             const stockItem = await StockItem.create({
                stockId: req.body.stockId,
-               productId: product.id
-            });
+               productId: product.id,
+               quantity: branchProduct.quantity
+            }, { transaction: sequelizeTransaction });
 
             stockItem.setDataValue('product', product);
             res.status(201).send(stockItem);
             sequelizeTransaction.commit();
         } catch(error) {
+            sequelizeTransaction.rollback();
             res.sendStatus(500);
-            console.log(req.body);
+            console.error(error);
         }
     }
 }

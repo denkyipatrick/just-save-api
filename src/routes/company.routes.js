@@ -2,7 +2,7 @@
 
 // Created: 22 Mar 2021
 const COMPANIES_URL = `${process.env.BASE_URL}/companies`;
-const { Company, Branch, Product, BranchProduct, Sequelize } =
+const { Company, Branch, Product, BranchProduct, NewStaff, Sequelize } =
     require('../sequelize/models/index');
 
 const controllers = require('../controllers/index');
@@ -81,6 +81,45 @@ module.exports = app => {
       console.error(error);
     }
   });
+
+  app.get(`${COMPANIES_URL}/:id/staffs`, async(req, res) => {
+
+    try {
+      const staffs = await NewStaff.findAll({
+        where: {
+          companyId: req.params.id
+        }
+      });
+
+      res.send(staffs);
+    } catch (error) {
+      res.sendStatus(500);
+      console.error(error);
+    }
+  });
+
+  app.get(`${COMPANIES_URL}/:id/products/lookup/:key`, async (req, res) => {
+    console.log(req.params);
+
+    try {
+      const products = await Product.findAll({
+        order: [['name', 'ASC']],
+        where: {
+          companyId: req.params.id,
+          lookupKey: {
+            [Sequelize.Op.like]: `${req.params.key}%`,
+          },
+        },
+      });
+
+      console.log(products.length);
+
+      res.send(products);
+    } catch (error) {
+      res.sendStatus(500);
+      console.error(error);
+    }
+  })
 
   app.get(`${COMPANIES_URL}/:companyId/branches/:branchId/products`, async(req, res) => {
     console.log(req.params);

@@ -3,7 +3,7 @@
 const BASE_URL = process.env.BASE_URL;
 const STAFF_URL = `${BASE_URL}/staff`;
 const bcryptjs = require('bcryptjs');
-const { Branch, Staff, NewStaff, StaffBranch, sequelize, Role, StaffRole } =
+const { Branch, Staff, NewStaff, NewStaffRole, StaffBranch, sequelize, Role, StaffRole } =
     require('../sequelize/models/index');
 
 const controllers = require('../controllers/index');
@@ -46,7 +46,6 @@ module.exports = app => {
   app.post(`${STAFF_URL}`, controllers.CreateStaffController.create)
 
   app.post(`${STAFF_URL}/lskd/sldfk`, async(req, res) => {
-    console.log(req.body);
     const sequelizeTransaction = await sequelize.transaction();
 
     try {
@@ -113,7 +112,6 @@ module.exports = app => {
   });
 
   app.post(`${STAFF_URL}/auth`, async(req, res) => {
-    console.log(req.body);
     try {
       const staff = await NewStaff.findOne({
         where: {
@@ -122,6 +120,7 @@ module.exports = app => {
         },
         include: [
           'roles',
+          'company',
           { model: StaffBranch, as: 'staffBranch',
             include: [
               { model: Branch, as: 'branch', include: ['company'] }
