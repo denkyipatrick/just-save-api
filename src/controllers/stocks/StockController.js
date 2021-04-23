@@ -42,7 +42,8 @@ module.exports = class StockController {
         try {
             const stock = await Stock.create({
                 isOpened: true,
-                branchId: req.body.branchId
+                branchId: req.body.branchId,
+                companyId: req.body.companyId
             });
 
             res.status(201).send(stock);
