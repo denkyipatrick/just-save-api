@@ -1,7 +1,7 @@
 'use strict';
 
-const { body } = require('express-validator');
-const { Stock } = require('../sequelize/models/index');
+const { body, check } = require('express-validator');
+const { Stock, StockItem } = require('../sequelize/models/index');
 
 const postValidators = [
     body('stockId')
@@ -19,6 +19,23 @@ const postValidators = [
         }
 
         req.body.stock = stock;
+    })
+    .bail(),
+    check('stock_item')
+    .custom(async (value, { req }) => {
+        const stockItem = await StockItem.findOne({
+            include: [
+                'product'
+            ],
+            where: {
+                stockId: req.body.stockId,
+                "$product.lookupKey$": req.body.lookupKey
+            }
+        });
+
+        if (stockItem) {
+            return Promise.reject("Item already added to this stock.");
+        };
     })
 ];
 
