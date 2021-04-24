@@ -17,6 +17,10 @@ module.exports = class StockController {
                 ]
             });
 
+            if (!stock) {
+                return res.sendStatus(404);
+            }
+
             res.send(stock);
         } catch(error) {
             res.sendStatus(500);
@@ -69,6 +73,28 @@ module.exports = class StockController {
         } catch(error) {
             res.sendStatus(500);
             console.error(error)
+        }
+    }
+
+    static async deleteStock(req, res) {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            console.log(errors);
+            return res.status(400).send(errors);
+        }
+
+        try {
+            const stock = await Stock.findByPk(req.params.stockId);
+
+            await Stock.destroy({
+                where: { id: req.params.stockId }
+            });
+
+            res.send(stock);
+        } catch(error) {
+            res.sendStatus(500);
+            console.error(error);
         }
     }
 }

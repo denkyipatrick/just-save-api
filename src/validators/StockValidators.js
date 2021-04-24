@@ -1,9 +1,9 @@
 'use strict';
 
-const { body } = require('express-validator');
+const { body, param } = require('express-validator');
 const { Company, Stock, Branch } = require('../sequelize/models/index');
 
-const validators = [
+const postValidators = [
     body('branchId')
     .notEmpty()
     .withMessage('Branch not selected.')
@@ -55,4 +55,28 @@ const validators = [
     .withMessage()
 ];
 
-module.exports = validators;
+const deleteValidators = [
+    param('stockId')
+    .notEmpty()
+    .withMessage("Stock id is required.")
+    .bail(),
+    body('hasItems')
+    .custom(async (value, { req }) => {
+        const stock = await Stock.findByPk(req.params.stockId, {
+            include: ['items']
+        });
+
+        if (!stock) {
+            return Promise.reject("Stock is not found.");
+        }
+
+        if (stock.items.length) {
+            return Promise.reject("Stock has items.");
+        }
+    })
+]
+
+module.exports = {
+    postValidators,
+    deleteValidators
+};
