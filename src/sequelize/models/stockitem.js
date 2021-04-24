@@ -21,6 +21,10 @@ module.exports = (sequelize, DataTypes) => {
     StockItem.belongsTo(models.Product, {
       as: 'product'
     });
+
+    StockItem.belongsTo(models.Stock, {
+      as: 'stock'
+    });
   };
   return StockItem;
 };

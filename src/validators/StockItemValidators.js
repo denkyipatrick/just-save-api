@@ -1,6 +1,6 @@
 'use strict';
 
-const { body, check } = require('express-validator');
+const { body, check, param } = require('express-validator');
 const { Stock, StockItem } = require('../sequelize/models/index');
 
 const postValidators = [
@@ -39,6 +39,23 @@ const postValidators = [
     })
 ];
 
+const deleteValidators = [
+    param('stockItemId')
+    .notEmpty()
+    .withMessage("stock item id must be provided.")
+    .bail()
+    .custom(async (value, { req }) => {
+        const stockItem = await StockItem.findByPk(value, {
+            include: ['stock']
+        });
+
+        if (stockItem && !stockItem.stock.isOpened) {
+            return Promise.reject("Stock is closed.");
+        }
+    })
+]
+
 module.exports = {
-    postValidators
+    postValidators,
+    deleteValidators
 };

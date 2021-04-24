@@ -9,6 +9,10 @@ module.exports = app => {
   app.post(
     STOCK_ITEMS_URL,
     validators.postValidators,
-    controllers.StockItemController.createStockItem
-  );
+    controllers.StockItemController.createStockItem);
+
+  app.delete(
+    `${STOCK_ITEMS_URL}/:stockItemId`,
+    validators.deleteValidators,
+    controllers.StockItemController.deleteStockItem);
 };
