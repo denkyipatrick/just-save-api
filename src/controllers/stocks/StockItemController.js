@@ -18,7 +18,7 @@ module.exports = class StockController {
 
     if (!errors.isEmpty()) {
       console.log(errors);
-      // return res.status(400).send(errors);
+      return res.status(400).send(errors);
     }
 
     const sequelizeTransaction = await sequelize.transaction();
