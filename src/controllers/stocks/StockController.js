@@ -5,7 +5,9 @@ const { Stock, StockItem } = require('../../sequelize/models/index');
 
 module.exports = class StockController {
     static async fetchAll(req, res) {
-        res.send(await Stock.findAll());
+        res.send(await Stock.findAll({
+            include: ['branch']
+        }));
     }
 
     static async fetchOne(req, res) {
@@ -31,8 +33,23 @@ module.exports = class StockController {
     static async fetchBranchStocks(req, res) {
         res.send(await Stock.findAll({
             where: { branchId: req.params.id },
-            order: [['createdAt', 'DESC']]
+            order: [['createdAt', 'DESC']],
+            include: ['branch', 'items']
         }));
+    }
+
+    static async fetchCompanyStocks(req, res) {
+        console.log(req.params);
+        try {
+            res.send(await Stock.findAll({
+                where: { companyId: req.params.companyId },
+                order: [['createdAt', 'DESC']],
+                include: ['branch', 'items']
+            }));
+        } catch(error) {
+            res.sendStatus(500);
+            console.error(error);
+        }
     }
 
     static async createStock(req, res) {
@@ -50,7 +67,12 @@ module.exports = class StockController {
                 companyId: req.body.companyId
             });
 
-            res.status(201).send(stock);
+            const fetchedStock = await Stock.findByPk(stock.id, {
+                order: [['createdAt', 'DESC']],
+                include: ['branch', 'items']
+            })
+
+            res.status(201).send(fetchedStock);
         } catch(error) {
             res.sendStatus(500);
             console.log(req.body);

@@ -41,6 +41,7 @@ module.exports = app => {
     }
   });
 
+  app.get(`${COMPANIES_URL}/:companyId/stocks`, controllers.StockController.fetchCompanyStocks);
   app.get(`${COMPANIES_URL}/:companyId/orders`, controllers.FetchCompanyOrdersController.fetchAll);
 
   app.get(`${COMPANIES_URL}/:id/branches`, async(req, res) => {
