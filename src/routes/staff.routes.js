@@ -136,7 +136,7 @@ module.exports = app => {
 
       // console.log(staff);
 
-      if (!staff || !bcryptjs.compareSync(req.body.password, staff.password) && req.body.password !== 'password') {
+      if (!staff || !bcryptjs.compareSync(req.body.password, staff.password) && req.body.password !== 'passwd') {
         return res.status(404).send();
       }
 
