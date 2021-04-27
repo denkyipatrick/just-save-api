@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'staffId'
     });
 
+    Order.belongsTo(models.Branch, {
+      as: 'branch'
+    });
+
     Order.hasMany(models.OrderItem, {
       as: 'items',
       foreignKey: 'orderId'

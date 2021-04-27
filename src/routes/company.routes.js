@@ -2,7 +2,7 @@
 
 // Created: 22 Mar 2021
 const COMPANIES_URL = `${process.env.BASE_URL}/companies`;
-const { Company, Branch, Product, BranchProduct, NewStaff, Sequelize } =
+const { Company, Branch, StaffBranch, Product, BranchProduct, NewStaff, Sequelize } =
     require('../sequelize/models/index');
 
 const controllers = require('../controllers/index');
@@ -42,7 +42,7 @@ module.exports = app => {
   });
 
   app.get(`${COMPANIES_URL}/:companyId/stocks`, controllers.StockController.fetchCompanyStocks);
-  app.get(`${COMPANIES_URL}/:companyId/orders`, controllers.FetchCompanyOrdersController.fetchAll);
+  app.get(`${COMPANIES_URL}/:companyId/orders`, controllers.OrderController.fetchCompanyOrders);
 
   app.get(`${COMPANIES_URL}/:id/branches`, async(req, res) => {
     console.log(req.params);
@@ -83,13 +83,15 @@ module.exports = app => {
     }
   });
 
-  app.get(`${COMPANIES_URL}/:id/staffs`, async(req, res) => {
+  app.get(`${COMPANIES_URL}/:id/staffs`,  async(req, res) => {
 
     try {
       const staffs = await NewStaff.findAll({
         where: {
           companyId: req.params.id
-        }
+        },
+        include: [
+          {model: StaffBranch, as: 'staffBranch', include: ['branch'] }]
       });
 
       res.send(staffs);

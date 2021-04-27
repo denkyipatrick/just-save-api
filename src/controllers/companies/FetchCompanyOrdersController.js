@@ -7,7 +7,7 @@ module.exports = class FetchCompanyOrdersController {
     try {
       res.send(await Order.findAll({
         order: [['createdAt', 'DESC']],
-        include: ['staff'],
+        include: ['staff', 'branch', 'items'],
         where: {
           companyId: req.params.companyId
         }

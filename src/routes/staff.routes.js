@@ -3,7 +3,7 @@
 const BASE_URL = process.env.BASE_URL;
 const STAFF_URL = `${BASE_URL}/staff`;
 const bcryptjs = require('bcryptjs');
-const { Branch, Staff, NewStaff, NewStaffRole, StaffBranch, sequelize, Role, StaffRole } =
+const { Branch, Staff, NewStaff, NewStaffRole, StaffBranch, sequelize, Sequelize, Role, StaffRole } =
     require('../sequelize/models/index');
 
 const controllers = require('../controllers/index');
@@ -76,11 +76,12 @@ module.exports = app => {
 
     try {
       const staff = await NewStaff.create({
+        isAdmin: true,
         companyId: req.body.companyId,
-        lastName: 'Root',
-        username: 'root',
-        firstName: 'Root',
-        password: bcryptjs.hashSync('root', 10),
+        lastName: req.body.lastName || 'Root',
+        username: req.body.username || 'root',
+        firstName: req.body.firstName || 'Root',
+        password: bcryptjs.hashSync(req.body.password || 'root', 10),
       }, { transaction: sequelizeTransaction });
 
       const roles = await Role.findAll({
@@ -112,11 +113,15 @@ module.exports = app => {
   });
 
   app.post(`${STAFF_URL}/auth`, async(req, res) => {
+    console.log(req.body);
+
     try {
       const staff = await NewStaff.findOne({
         where: {
-          username: req.body.username,
-          companyId: req.body.companyId
+          [Sequelize.Op.and]: [
+            { username: req.body.username },
+            { companyId: req.body.companyId }
+          ]
         },
         include: [
           'roles',
@@ -128,6 +133,8 @@ module.exports = app => {
           },
         ],
       });
+
+      // console.log(staff);
 
       if (!staff || !bcryptjs.compareSync(req.body.password, staff.password)) {
         return res.status(404).send();

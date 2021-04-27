@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       type: DataTypes.UUID
     },
+    isSupervisor: {
+      defaultValue: false,
+      type: DataTypes.BOOLEAN
+    }
   }, {});
   StaffBranch.associate = function(models) {
     // associations can be defined here

@@ -9,6 +9,7 @@ const FetchCompanyOrdersController = require('./companies/FetchCompanyOrdersCont
 
 const StockController = require('./stocks/StockController');
 const StockItemController = require('./stocks/StockItemController');
+const OrderController = require('./orders/OrderController');
 
 // Staff Controllers
 const CreateStaffController = require('./staffs/CreateStaffController');
@@ -23,6 +24,7 @@ module.exports = {
   CreateOrderController,
   CreateBranchController,
 
+  OrderController,
   StockController,
   StockItemController,
 

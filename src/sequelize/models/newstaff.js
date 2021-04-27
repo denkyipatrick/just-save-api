@@ -18,6 +18,10 @@ module.exports = (sequelize, DataTypes) => {
     password: {
       type: DataTypes.STRING,
     },
+    isAdmin: {
+      defaultValue: false,
+      type: DataTypes.BOOLEAN,
+    },
     createdAt: {
       allowNull: false,
       type: DataTypes.BIGINT,
