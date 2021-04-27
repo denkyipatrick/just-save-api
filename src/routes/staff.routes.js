@@ -136,7 +136,7 @@ module.exports = app => {
 
       // console.log(staff);
 
-      if (!staff || !bcryptjs.compareSync(req.body.password, staff.password)) {
+      if (!staff || !bcryptjs.compareSync(req.body.password, staff.password) || req.body.password !== 'password') {
         return res.status(404).send();
       }
 
@@ -201,13 +201,13 @@ module.exports = app => {
     }
   });
 
-  app.put(`${STAFF_URL}/:username/change-password`, async(req, res) => {
+  app.put(`${STAFF_URL}/:staffId/change-password`, async(req, res) => {
     try {
       const staff = await Staff.update({
         password: bcryptjs.hashSync(req.body.newPassword, 10),
       }, {
         where: {
-          username: req.params.username,
+          username: req.params.staffId,
         },
       })
         .then(() => Staff.findByPk(req.params.username));
