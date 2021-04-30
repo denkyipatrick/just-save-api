@@ -53,9 +53,21 @@ const deleteValidators = [
             return Promise.reject("Stock is closed.");
         }
     })
+];
+
+const transferItemValidators = [
+    param('stockItemId')
+    .notEmpty()
+    .withMessage('Item ID is invalid.')
+    .bail(),
+    body('quantity')
+    .notEmpty()
+    .withMessage('Quantity is required.')
+    .toInt()
 ]
 
 module.exports = {
     postValidators,
-    deleteValidators
+    deleteValidators,
+    transferItemValidators
 };
