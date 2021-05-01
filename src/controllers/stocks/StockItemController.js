@@ -10,6 +10,7 @@ const {
   Sequelize,
   StockItem,
   BranchProduct,
+  StockItemTransfer
 } = require('../../sequelize/models/index');
 
 module.exports = class StockController {
@@ -147,6 +148,80 @@ module.exports = class StockController {
         sequelizeTransaction.rollback();
         res.sendStatus(500);
         console.error(error);
+    }
+  }
+
+  static async transferItem(req, res) {
+    const sequelizeTransaction = await sequelize.transaction();
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      console.log(errors);
+      return res.status(400).send(errors);
+    }
+
+    try {
+      const transferringStockItem = await StockItem.findByPk(req.params.stockItemId, {
+        transaction: sequelizeTransaction
+      });
+
+      const receivingBranch = await Branch.findByPk(req.body.receivingBranchId, {
+        transaction: sequelizeTransaction,
+        include: [
+          { model: Stock, as: 'stocks' }
+        ]
+      });
+
+      // update and return target stock item.
+      let [receivingStockItem, isReceivingItemCreated] = await StockItem.findOrCreate({
+        defaults: {
+          quantity: req.body.quantity,
+          stockId: receivingBranch.stocks[0].id,
+          productId: transferringStockItem.productId
+        },
+        where: {
+          stockId: receivingBranch.stocks[0].id,
+          productId: transferringStockItem.productId
+        },
+        transaction: sequelizeTransaction
+      });
+
+      if (!isReceivingItemCreated) {
+        await StockItem.update({
+          quantity: Sequelize.literal(`quantity + ${req.body.quantity}`)
+        }, {
+          transaction: sequelizeTransaction,
+          where: {
+            stockId: receivingBranch.stocks[0].id,
+            productId: transferringStockItem.productId
+          }
+        });
+      }
+
+      await StockItem.update({
+        quantity: Sequelize.literal(`quantity - ${req.body.quantity}`)
+      }, {
+        transaction: sequelizeTransaction,
+        where: {
+          id: transferringStockItem.id
+        }
+      });
+
+      const stockItemTransfer = await StockItemTransfer.create({
+        sendingStockItemId: transferringStockItem.id,
+        receivingStockItemId: receivingStockItem.id,
+        senderUsername: req.body.senderId,
+        quantity: req.body.quantity
+      }, {
+        transaction: sequelizeTransaction
+      });
+
+      sequelizeTransaction.commit();
+      res.status(201).send(stockItemTransfer);
+    } catch(error) {
+      sequelizeTransaction.rollback();
+      res.sendStatus(500);
+      console.error(error);
     }
   }
 }

@@ -34,6 +34,10 @@ module.exports = (sequelize, DataTypes) => {
       as: 'company',
       foreignKey: 'companyId',
     });
+
+    Branch.hasMany(models.Stock, {
+      as: 'stocks'
+    });
   };
   return Branch;
 };

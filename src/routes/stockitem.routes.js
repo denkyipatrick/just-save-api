@@ -11,6 +11,10 @@ module.exports = app => {
     validators.postValidators,
     controllers.StockItemController.createStockItem);
 
+  app.post(`${STOCK_ITEMS_URL}/:stockItemId/transfer`,
+    validators.transferItemValidators,
+    controllers.StockItemController.transferItem);
+
   app.delete(
     `${STOCK_ITEMS_URL}/:stockItemId`,
     validators.deleteValidators,
