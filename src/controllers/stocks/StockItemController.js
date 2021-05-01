@@ -136,7 +136,8 @@ module.exports = class StockController {
         const stockItem = await StockItem.create({
             stockId: req.body.stockId,
             productId: product.id,
-            quantity: req.body.quantity
+            quantity: +req.body.quantity,
+            availableQuantity: +req.body.quantity
         }, { transaction: sequelizeTransaction });
 
         stockItem.setDataValue('product', product);

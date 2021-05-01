@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) => {
     },
     quantity: {
       type: DataTypes.INTEGER
+    },
+    availableQuantity: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0
     }
   }, {});
   StockItem.associate = function(models) {
