@@ -1,7 +1,7 @@
 'use strict';
 
 const { validationResult } = require('express-validator');
-const { Stock, StockItem } = require('../../sequelize/models/index');
+const { Stock, StockItem, sequelize } = require('../../sequelize/models/index');
 
 module.exports = class StockController {
     static async fetchAll(req, res) {
@@ -80,16 +80,19 @@ module.exports = class StockController {
     }
 
     static async closeStock(req, res) {
+        const sequelizeTransaction = await sequelize.transaction();
+
         try {
-            console.log(req.params);
-            const stock = await Stock.update({
-                isOpened: false
-            }, {
-                where: {
-                    id: req.params.id
-                }
-            })
-            .then(() => Stock.findByPk(req.params.id));
+            const stock = await Stock.findByPk(req.params.id, {
+                transaction: sequelizeTransaction,
+                include: [
+                    { model: StockItem, as: 'items', include: ['product'] }
+                ]
+            });
+
+            const branch = await Branch.findByPk(stock.branchId, {
+                transaction: sequelizeTransaction,
+            });
 
             res.send(stock);
         } catch(error) {
