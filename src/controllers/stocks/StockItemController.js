@@ -75,73 +75,31 @@ module.exports = class StockController {
     const sequelizeTransaction = await sequelize.transaction();
 
     try {
-        const stock = await Stock.findByPk(req.body.stockId, {
+        let stockItem = null;
+
+        if(req.validationInput && req.validationInput.isItemPartOfStock) {
+          stockItem = await StockItem.update({
+            quantity: +req.body.quantity
+          }, {
+            transaction: sequelizeTransaction,
+            where: { id: req.validationInput.stockItemId }
+          })
+          .then(() => StockItem.findByPk(req.validationInput.stockItemId, {
             transaction: sequelizeTransaction
-        });
-
-        const branch = await Branch.findByPk(stock.branchId, {
-            transaction: sequelizeTransaction,
-        });
-
-        const [product, isProductCreated] = await Product.findOrCreate({
-            where: {
-              lookupKey: req.body.lookupKey,
-            },
-            defaults: {
-              name: req.body.name,
-              quantity: req.body.quantity,
-              companyId: branch.companyId,
-              costPrice: req.body.costPrice,
-              lookupKey: req.body.lookupKey.toUpperCase(),
-              unitPrice: req.body.unitPrice || req.body.sellingPrice,
-              sellingPrice: req.body.sellingPrice || req.body.unitPrice,
-            },
-            transaction: sequelizeTransaction,
-          });
-
-          const [branchProduct, isBranchProductCreated] = await BranchProduct.findOrCreate({
-            where: {
-                branchId: branch.id,
-                productId: product.id
-            },
-            defaults: {
-                branchId: branch.id,
-                productId: product.id,
-                quantity: req.body.quantity
-            },
-            transaction: sequelizeTransaction,
-          });
-
-          if (!isBranchProductCreated) {
-            // product is already in this branch. update quantity
-            await BranchProduct.update({
-              quantity: Sequelize.literal(`quantity + ${req.body.quantity}`)
-            }, {
-              transaction: sequelizeTransaction,
-              where: {
-                branchId: branchProduct.branchId,
-                productId: branchProduct.productId
-              }
-            });
-          }
-
-          if (!isProductCreated) {
-            await Product.update({
-              quantity: Sequelize.literal(`quantity + ${req.body.quantity}`),
-            }, {
-              where: { id: product.id },
-              transaction: sequelizeTransaction,
-            });
-          }
-
-        const stockItem = await StockItem.create({
+          }));
+        } else {
+          stockItem = await StockItem.create({
             stockId: req.body.stockId,
-            productId: product.id,
             quantity: +req.body.quantity,
-            availableQuantity: +req.body.quantity
-        }, { transaction: sequelizeTransaction });
+            productId: req.body.productId
+          }, { transaction: sequelizeTransaction });
+        }
 
-        stockItem.setDataValue('product', product);
+        stockItem.setDataValue('product',
+          await Product.findByPk(req.body.productId, {
+            transaction: sequelizeTransaction
+        }));
+
         res.status(201).send(stockItem);
         sequelizeTransaction.commit();
     } catch(error) {
