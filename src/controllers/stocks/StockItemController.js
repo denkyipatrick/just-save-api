@@ -175,7 +175,8 @@ module.exports = class StockController {
       // update and return target stock item.
       let [receivingStockItem, isReceivingItemCreated] = await StockItem.findOrCreate({
         defaults: {
-          quantity: req.body.quantity,
+          quantity: +req.body.quantity,
+          availableQuantity: +req.body.quantity,
           stockId: receivingBranch.stocks[0].id,
           productId: transferringStockItem.productId
         },
@@ -188,18 +189,15 @@ module.exports = class StockController {
 
       if (!isReceivingItemCreated) {
         await StockItem.update({
-          quantity: Sequelize.literal(`quantity + ${req.body.quantity}`)
+          availableQuantity: Sequelize.literal(`availableQuantity + ${req.body.quantity}`)
         }, {
           transaction: sequelizeTransaction,
-          where: {
-            stockId: receivingBranch.stocks[0].id,
-            productId: transferringStockItem.productId
-          }
+          where: { id: receivingStockItem.id }
         });
       }
 
       await StockItem.update({
-        quantity: Sequelize.literal(`quantity - ${req.body.quantity}`)
+        availableQuantity: Sequelize.literal(`availableQuantity - ${req.body.quantity}`)
       }, {
         transaction: sequelizeTransaction,
         where: {
