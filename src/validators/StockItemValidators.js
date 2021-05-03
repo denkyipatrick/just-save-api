@@ -29,12 +29,15 @@ const postValidators = [
             ],
             where: {
                 stockId: req.body.stockId,
-                "$product.lookupKey$": req.body.lookupKey
+                "$product.id$": req.body.productId
             }
         });
 
         if (stockItem) {
-            return Promise.reject("Item already added to this stock.");
+            req.validationInput = {
+                stockItemId: stockItem.id,
+                isItemPartOfStock: true
+            };
         };
     })
 ];
