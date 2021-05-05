@@ -1,7 +1,15 @@
 'use strict';
 
 const { validationResult } = require('express-validator');
-const { Stock, StockItem, sequelize } = require('../../sequelize/models/index');
+const {
+    Product,
+    BranchProduct,
+    Branch,
+    Stock,
+    StockItem,
+    sequelize,
+    Sequelize
+} = require('../../sequelize/models/index');
 
 module.exports = class StockController {
     static async fetchAll(req, res) {
@@ -86,7 +94,7 @@ module.exports = class StockController {
             const stock = await Stock.findByPk(req.params.id, {
                 transaction: sequelizeTransaction,
                 include: [
-                    { model: StockItem, as: 'items', include: ['product'] }
+                    { model: StockItem, as: 'items' }
                 ]
             });
 
@@ -94,8 +102,51 @@ module.exports = class StockController {
                 transaction: sequelizeTransaction,
             });
 
+            for (const item of stock.items) {
+                const [branchProduct, isBranchProductCreated] =
+                await BranchProduct.findOrCreate({
+                    where: {
+                        branchId: branch.id,
+                        productId: item.productId,
+                    },
+                    defaults: {
+                        branchId: branch.id,
+                        quantity: item.quantity,
+                        productId: item.productId
+                    },
+                    transaction: sequelizeTransaction,
+                });
+
+                if(!isBranchProductCreated) {
+                    await BranchProduct.update({
+                        quantity: Sequelize.literal(`quantity + ${item.quantity}`)
+                    }, {
+                        transaction: sequelizeTransaction,
+                        where: { id: branchProduct.id }
+                    });
+
+                    await Product.update({
+                        quantity: Sequelize.literal(`quantity + ${item.quantity}`)
+                    }, {
+                        transaction: sequelizeTransaction,
+                        where: { id: item.productId }
+                    });
+                }
+            }
+
+            await Stock.update({
+                isOpened: false
+            }, {
+                transaction: sequelizeTransaction,
+                where: {
+                    id: stock.id
+                }
+            });
+
+            sequelizeTransaction.commit();
             res.send(stock);
         } catch(error) {
+            sequelizeTransaction.rollback();
             res.sendStatus(500);
             console.error(error)
         }
