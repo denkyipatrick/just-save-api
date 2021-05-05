@@ -99,7 +99,15 @@ module.exports = class CreateOrderController {
         });
       }
 
-      order.setDataValue('items', orderedItems);
+      const orderItems = await OrderItem.findAll({
+        transaction: sequelizeTransaction,
+        where: {
+          id: { [Sequelize.Op.in]: orderedItems.map(item => item.id) }
+        },
+        include: ['product']
+      })
+
+      order.setDataValue('items', orderItems);
       sequelizeTransaction.commit();
       res.status(201).send(order);
     } catch (error) {

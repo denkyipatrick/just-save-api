@@ -1,7 +1,7 @@
 'use strict';
 
 const { validationResult } = require('express-validator');
-const { Order } = require('../../sequelize/models/index');
+const { Order, OrderItem } = require('../../sequelize/models/index');
 
 module.exports = class OrderController {
     static async fetchAll(req, res) {
@@ -14,7 +14,11 @@ module.exports = class OrderController {
         try {
             const orders = await Order.findAll({
                 order: [['createdAt', 'DESC']],
-                include: ['staff', 'branch', 'items'],
+                include: [
+                    'staff',
+                    'branch',
+                    { model: OrderItem, as: 'items', include: ['product'] }
+                ],
                 where: {
                   branchId: req.params.branchId
                 }
@@ -31,7 +35,11 @@ module.exports = class OrderController {
         try {
             const orders = await Order.findAll({
                 order: [['createdAt', 'DESC']],
-                include: ['staff', 'branch', 'items'],
+                include: [
+                    'staff',
+                    'branch',
+                    { model: OrderItem, as: 'items', include: ['product'] }
+                ],
                 where: {
                   companyId: req.params.companyId
                 }
