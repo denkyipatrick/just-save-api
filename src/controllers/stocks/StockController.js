@@ -114,7 +114,7 @@ module.exports = class StockController {
                         quantity: item.quantity,
                         productId: item.productId
                     },
-                    transaction: sequelizeTransaction,
+                    transaction: sequelizeTransaction
                 });
 
                 if(!isBranchProductCreated) {
@@ -122,16 +122,19 @@ module.exports = class StockController {
                         quantity: Sequelize.literal(`quantity + ${item.quantity}`)
                     }, {
                         transaction: sequelizeTransaction,
-                        where: { id: branchProduct.id }
-                    });
-
-                    await Product.update({
-                        quantity: Sequelize.literal(`quantity + ${item.quantity}`)
-                    }, {
-                        transaction: sequelizeTransaction,
-                        where: { id: item.productId }
+                        where: {
+                            branchId: branch.id,
+                            productId: item.productId,
+                        }
                     });
                 }
+
+                await Product.update({
+                    quantity: Sequelize.literal(`quantity + ${item.quantity}`)
+                }, {
+                    transaction: sequelizeTransaction,
+                    where: { id: item.productId }
+                });
             }
 
             await Stock.update({
