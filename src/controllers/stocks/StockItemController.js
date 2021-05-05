@@ -99,18 +99,6 @@ module.exports = class StockController {
           }, { transaction: sequelizeTransaction });
         }
 
-        await BranchProduct.findOrCreate({
-            where: {
-                branchId: stock.branchId,
-                productId: req.body.productId,
-            },
-            defaults: {
-                branchId: stock.branchId,
-                productId: req.body.productId
-            },
-            transaction: sequelizeTransaction,
-        });
-
         stockItem.setDataValue('product',
           await Product.findByPk(req.body.productId, {
             transaction: sequelizeTransaction
