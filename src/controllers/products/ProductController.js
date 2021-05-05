@@ -1,5 +1,10 @@
 'use strict';
 
+const {
+    Product,
+    sequelize
+} = require('../../sequelize/models/index');
+
 module.exports = class ProductController {
     static async createProduct(req, res) {
         const sequelizeTransaction = await sequelize.transaction();
@@ -12,7 +17,7 @@ module.exports = class ProductController {
                 defaults: {
                     quantity: 0,
                     name: req.body.name,
-                    companyId: branch.companyId,
+                    companyId: req.body.companyId,
                     costPrice: req.body.costPrice,
                     lookupKey: req.body.lookupKey.toUpperCase(),
                     unitPrice: req.body.unitPrice || req.body.sellingPrice,

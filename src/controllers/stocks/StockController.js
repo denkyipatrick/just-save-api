@@ -42,7 +42,10 @@ module.exports = class StockController {
         res.send(await Stock.findAll({
             where: { branchId: req.params.id },
             order: [['createdAt', 'DESC']],
-            include: ['branch', 'items']
+            include: [
+                'branch',
+                { model: StockItem, as: 'items', include: ['product'] }
+            ]
         }));
     }
 
@@ -52,7 +55,10 @@ module.exports = class StockController {
             res.send(await Stock.findAll({
                 where: { companyId: req.params.companyId },
                 order: [['createdAt', 'DESC']],
-                include: ['branch', 'items']
+                include: [
+                    'branch',
+                    { model: StockItem, as: 'items', include: ['product'] }
+                ]
             }));
         } catch(error) {
             res.sendStatus(500);
