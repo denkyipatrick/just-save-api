@@ -77,6 +77,10 @@ module.exports = class StockController {
     try {
         let stockItem = null;
 
+        const stock = await Stock.findByPk(req.body.stockId, {
+          transaction: sequelizeTransaction
+        });
+
         if(req.validationInput && req.validationInput.isItemPartOfStock) {
           stockItem = await StockItem.update({
             quantity: +req.body.quantity
@@ -94,6 +98,18 @@ module.exports = class StockController {
             productId: req.body.productId
           }, { transaction: sequelizeTransaction });
         }
+
+        await BranchProduct.findOrCreate({
+            where: {
+                branchId: stock.branchId,
+                productId: req.body.productId,
+            },
+            defaults: {
+                branchId: stock.branchId,
+                productId: req.body.productId
+            },
+            transaction: sequelizeTransaction,
+        });
 
         stockItem.setDataValue('product',
           await Product.findByPk(req.body.productId, {
