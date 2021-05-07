@@ -52,7 +52,7 @@ module.exports = class CreateOrderController {
         ]
       });
 
-      const order = await Order.create({
+      let order = await Order.create({
         staffId: req.body.staffId,
         companyId: req.body.companyId,
         branchId: staff.staffBranch.branchId
@@ -69,8 +69,6 @@ module.exports = class CreateOrderController {
           orderItemSellingPrice: +item.branchProduct.product.sellingPrice
         }
       });
-
-      console.log(cartItems);
 
       const orderedItems = await OrderItem.bulkCreate(cartItems, {
         transaction: sequelizeTransaction
@@ -105,9 +103,16 @@ module.exports = class CreateOrderController {
           id: { [Sequelize.Op.in]: orderedItems.map(item => item.id) }
         },
         include: ['product']
-      })
+      });
 
-      order.setDataValue('staff', staff);
+      order = await Order.findByPk(order.id, {
+        transaction: sequelizeTransaction,
+        include: [
+          { model: NewStaff, as: 'staff' },
+          { model: OrderItem, as: 'items', include: ['product'] }
+        ]
+      });
+
       order.setDataValue('items', orderItems);
       sequelizeTransaction.commit();
       res.status(201).send(order);
