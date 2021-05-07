@@ -10,5 +10,5 @@ module.exports = app => {
   app.get(`${BRANCHES_URL}/:id/stocks`, controllers.StockController.fetchBranchStocks);
   app.get(`${BRANCHES_URL}/:branchId/orders`, controllers.OrderController.fetchBranchOrders);
   app.get(`${BRANCHES_URL}/:branchId/staffs`, controllers.FetchBranchStaffs.fetchAllStaffs);
-  app.get(`${BRANCHES_URL}/:branchId/products`, controllers.FetchBranchProducts.fetchAllProducts);
+  app.get(`${BRANCHES_URL}/:branchId/products`, controllers.BranchProductController.fetchBranchProducts);
 };

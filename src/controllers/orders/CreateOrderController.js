@@ -107,6 +107,7 @@ module.exports = class CreateOrderController {
         include: ['product']
       })
 
+      order.setDataValue('staff', staff);
       order.setDataValue('items', orderItems);
       sequelizeTransaction.commit();
       res.status(201).send(order);
