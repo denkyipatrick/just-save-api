@@ -5,25 +5,25 @@ const {
     Product,
     BranchProduct,
     Branch,
-    Stock,
-    StockItem,
+    StockEntry,
+    StockEntryItem,
     sequelize,
     Sequelize
 } = require('../../sequelize/models/index');
 
 module.exports = class StockController {
     static async fetchAll(req, res) {
-        res.send(await Stock.findAll({
+        res.send(await StockEntry.findAll({
             include: ['branch']
         }));
     }
 
     static async fetchOne(req, res) {
         try {
-            const stock = await Stock.findByPk(req.params.id, {
+            const stock = await StockEntry.findByPk(req.params.id, {
                 include: [
                     'branch',
-                    { model: StockItem, as: 'items', include: ['product'] }
+                    { model: StockEntryItem, as: 'items', include: ['product'] }
                 ]
             });
 
@@ -39,12 +39,12 @@ module.exports = class StockController {
     }
 
     static async fetchBranchStocks(req, res) {
-        res.send(await Stock.findAll({
+        res.send(await StockEntry.findAll({
             where: { branchId: req.params.id },
             order: [['createdAt', 'DESC']],
             include: [
                 'branch',
-                { model: StockItem, as: 'items', include: ['product'] }
+                { model: StockEntryItem, as: 'items', include: ['product'] }
             ]
         }));
     }
@@ -52,12 +52,12 @@ module.exports = class StockController {
     static async fetchCompanyStocks(req, res) {
         console.log(req.params);
         try {
-            res.send(await Stock.findAll({
+            res.send(await StockEntry.findAll({
                 where: { companyId: req.params.companyId },
                 order: [['createdAt', 'DESC']],
                 include: [
                     'branch',
-                    { model: StockItem, as: 'items', include: ['product'] }
+                    { model: StockEntryItem, as: 'items', include: ['product'] }
                 ]
             }));
         } catch(error) {
@@ -75,13 +75,13 @@ module.exports = class StockController {
         }
 
         try {
-            const stock = await Stock.create({
+            const stock = await StockEntry.create({
                 isOpened: true,
                 branchId: req.body.branchId,
                 companyId: req.body.companyId
             });
 
-            const fetchedStock = await Stock.findByPk(stock.id, {
+            const fetchedStock = await StockEntry.findByPk(stock.id, {
                 order: [['createdAt', 'DESC']],
                 include: ['branch', 'items']
             })
@@ -97,18 +97,18 @@ module.exports = class StockController {
         const sequelizeTransaction = await sequelize.transaction();
 
         try {
-            const stock = await Stock.findByPk(req.params.id, {
+            const stockEntry = await StockEntry.findByPk(req.params.id, {
                 transaction: sequelizeTransaction,
                 include: [
-                    { model: StockItem, as: 'items' }
+                    { model: StockEntryItem, as: 'items' }
                 ]
             });
 
-            const branch = await Branch.findByPk(stock.branchId, {
+            const branch = await Branch.findByPk(stockEntry.branchId, {
                 transaction: sequelizeTransaction,
             });
 
-            for (const item of stock.items) {
+            for (const item of stockEntry.items) {
                 const [branchProduct, isBranchProductCreated] =
                 await BranchProduct.findOrCreate({
                     where: {
@@ -143,17 +143,17 @@ module.exports = class StockController {
                 });
             }
 
-            await Stock.update({
+            await StockEntry.update({
                 isOpened: false
             }, {
                 transaction: sequelizeTransaction,
                 where: {
-                    id: stock.id
+                    id: stockEntry.id
                 }
             });
 
             sequelizeTransaction.commit();
-            res.send(stock);
+            res.send(stockEntry);
         } catch(error) {
             sequelizeTransaction.rollback();
             res.sendStatus(500);
@@ -170,13 +170,13 @@ module.exports = class StockController {
         }
 
         try {
-            const stock = await Stock.findByPk(req.params.stockId);
+            const stockEntry = await StockEntry.findByPk(req.params.stockId);
 
-            await Stock.destroy({
+            await StockEntry.destroy({
                 where: { id: req.params.stockId }
             });
 
-            res.send(stock);
+            res.send(stockEntry);
         } catch(error) {
             res.sendStatus(500);
             console.error(error);

@@ -1,14 +1,14 @@
 'use strict';
 
 const { body, check, param } = require('express-validator');
-const { Stock, StockItem } = require('../sequelize/models/index');
+const { StockEntry, StockEntryItem } = require('../sequelize/models/index');
 
 const postValidators = [
     body('stockId')
     .notEmpty()
     .withMessage("Stock ID is required")
     .custom(async (stockId, { req }) => {
-        const stock = await Stock.findByPk(stockId);
+        const stock = await StockEntry.findByPk(stockId);
 
         if (!stock) {
             return Promise.reject("Stock not available.");
@@ -23,7 +23,7 @@ const postValidators = [
     .bail(),
     check('stock_item')
     .custom(async (value, { req }) => {
-        const stockItem = await StockItem.findOne({
+        const stockEntryItem = await StockEntryItem.findOne({
             include: [
                 'product'
             ],
@@ -33,9 +33,9 @@ const postValidators = [
             }
         });
 
-        if (stockItem) {
+        if (stockEntryItem) {
             req.validationInput = {
-                stockItemId: stockItem.id,
+                stockEntryItemId: stockEntryItem.id,
                 isItemPartOfStock: true
             };
         };
@@ -48,7 +48,7 @@ const deleteValidators = [
     .withMessage("stock item id must be provided.")
     .bail()
     .custom(async (value, { req }) => {
-        const stockItem = await StockItem.findByPk(value, {
+        const stockItem = await StockEntryItem.findByPk(value, {
             include: ['stock']
         });
 

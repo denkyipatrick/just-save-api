@@ -19,15 +19,15 @@ if (process.env.NODE_ENV === 'development') {
 
 // import routes
 require('./routes/role.routes')(application);
-require('./routes/stock.routes')(application);
 require('./routes/staff.routes')(application);
 require('./routes/order.routes')(application);
 require('./routes/branch.routes')(application);
 require('./routes/company.routes')(application);
 require('./routes/product.routes')(application);
-require('./routes/stockitem.routes')(application);
 require('./routes/staffrole.routes')(application);
+require('./routes/stockentry.routes')(application);
 require('./routes/branchproduct.routes')(application);
+require('./routes/stockentryitem.routes')(application);
 
 if (process.env.USE_HTTPS.indexOf('yes') > -1) {
   https.createServer({

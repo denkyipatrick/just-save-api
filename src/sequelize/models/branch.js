@@ -35,8 +35,8 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'companyId',
     });
 
-    Branch.hasMany(models.Stock, {
-      as: 'stocks'
+    Branch.hasMany(models.StockEntry, {
+      as: 'stockEntries'
     });
   };
   return Branch;

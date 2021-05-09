@@ -1,6 +1,6 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const StockItem = sequelize.define('StockItem', {
+  const StockEntryItem = sequelize.define('StockEntryItem', {
     id: {
       primaryKey: true,
       type: DataTypes.UUID,
@@ -12,6 +12,9 @@ module.exports = (sequelize, DataTypes) => {
     stockId: {
       type: DataTypes.UUID
     },
+    stockEntryId: {
+      type: DataTypes.UUID
+    },
     quantity: {
       type: DataTypes.INTEGER
     },
@@ -20,15 +23,16 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 0
     }
   }, {});
-  StockItem.associate = function(models) {
+  StockEntryItem.associate = function(models) {
     // associations can be defined here
-    StockItem.belongsTo(models.Product, {
+    StockEntryItem.belongsTo(models.Product, {
       as: 'product'
     });
 
-    StockItem.belongsTo(models.Stock, {
-      as: 'stock'
+    StockEntryItem.belongsTo(models.StockEntry, {
+      as: 'stockEntry',
+      foreignKey: 'stockEntryId'
     });
   };
-  return StockItem;
+  return StockEntryItem;
 };

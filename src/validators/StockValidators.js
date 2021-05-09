@@ -1,7 +1,7 @@
 'use strict';
 
 const { body, param } = require('express-validator');
-const { Company, Stock, Branch } = require('../sequelize/models/index');
+const { Company, StockEntry, Branch } = require('../sequelize/models/index');
 
 const postValidators = [
     body('branchId')
@@ -38,7 +38,7 @@ const postValidators = [
     .bail(),
     body('stock_opened')
     .custom(async (value, { req }) => {
-        const stocks = await Stock.findAll({
+        const stockEntries = await StockEntry.findAll({
             where: {
                 isOpened: true,
                 branchId: req.body.branchId,
@@ -46,8 +46,8 @@ const postValidators = [
             }
         });
 
-        if (stocks.length) {
-            return Promise.reject("You already have an opened stock. Close it first.");
+        if (stockEntries.length) {
+            return Promise.reject("You already have an opened Stock Entry. Close it first.");
         }
 
         return Promise.resolve();
@@ -62,15 +62,15 @@ const deleteValidators = [
     .bail(),
     body('hasItems')
     .custom(async (value, { req }) => {
-        const stock = await Stock.findByPk(req.params.stockId, {
+        const stockEntry = await stockEntry.findByPk(req.params.stockId, {
             include: ['items']
         });
 
-        if (!stock) {
+        if (!stockEntry) {
             return Promise.reject("Stock is not found.");
         }
 
-        if (stock.items.length) {
+        if (stockEntry.items.length) {
             return Promise.reject("Stock has items.");
         }
     })

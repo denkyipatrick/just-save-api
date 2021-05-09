@@ -9,14 +9,14 @@ module.exports = app => {
   app.post(
     STOCK_ITEMS_URL,
     validators.postValidators,
-    controllers.StockItemController.createStockItem);
+    controllers.StockEntryItemController.createStockItem);
 
   app.post(`${STOCK_ITEMS_URL}/:stockItemId/transfer`,
     validators.transferItemValidators,
-    controllers.StockItemController.transferItem);
+    controllers.StockEntryItemController.transferItem);
 
   app.delete(
     `${STOCK_ITEMS_URL}/:stockItemId`,
     validators.deleteValidators,
-    controllers.StockItemController.deleteStockItem);
+    controllers.StockEntryItemController.deleteStockItem);
 };

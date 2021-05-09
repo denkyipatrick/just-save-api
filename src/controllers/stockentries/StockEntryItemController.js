@@ -3,12 +3,12 @@
 const { validationResult } = require('express-validator');
 
 const {
-  Stock,
+  StockEntry,
   Branch,
   Product,
   sequelize,
   Sequelize,
-  StockItem,
+  StockEntryItem,
   BranchProduct,
   StockItemTransfer
 } = require('../../sequelize/models/index');
@@ -25,7 +25,7 @@ module.exports = class StockController {
     const sequelizeTransaction = await sequelize.transaction();
 
     try {
-      const stockItem = await StockItem.findByPk(req.params.stockItemId, {
+      const stockItem = await StockEntryItem.findByPk(req.params.stockItemId, {
         include: ['product', 'stock']
       });
 
@@ -48,7 +48,7 @@ module.exports = class StockController {
         }
       });
 
-      await StockItem.destroy({
+      await StockEntryItem.destroy({
         transaction: sequelizeTransaction,
         where: {
           id: stockItem.id
@@ -75,36 +75,38 @@ module.exports = class StockController {
     const sequelizeTransaction = await sequelize.transaction();
 
     try {
-        let stockItem = null;
+        let stockEntryItem = null;
 
-        const stock = await Stock.findByPk(req.body.stockId, {
+        const stockEntry = await StockEntry.findByPk(req.body.stockId, {
           transaction: sequelizeTransaction
         });
 
+        console.log(stockEntry);
+
         if(req.validationInput && req.validationInput.isItemPartOfStock) {
-          stockItem = await StockItem.update({
+          stockEntryItem = await StockEntryItem.update({
             quantity: +req.body.quantity
           }, {
             transaction: sequelizeTransaction,
-            where: { id: req.validationInput.stockItemId }
+            where: { id: req.validationInput.stockEntryItemId }
           })
-          .then(() => StockItem.findByPk(req.validationInput.stockItemId, {
+          .then(() => StockEntryItem.findByPk(req.validationInput.stockEntryItemId, {
             transaction: sequelizeTransaction
           }));
         } else {
-          stockItem = await StockItem.create({
-            stockId: req.body.stockId,
+          stockEntryItem = await StockEntryItem.create({
+            stockEntryId: stockEntry.id,
             quantity: +req.body.quantity,
             productId: req.body.productId
           }, { transaction: sequelizeTransaction });
         }
 
-        stockItem.setDataValue('product',
+        stockEntryItem.setDataValue('product',
           await Product.findByPk(req.body.productId, {
             transaction: sequelizeTransaction
         }));
 
-        res.status(201).send(stockItem);
+        res.status(201).send(stockEntryItem);
         sequelizeTransaction.commit();
     } catch(error) {
         sequelizeTransaction.rollback();
@@ -123,19 +125,19 @@ module.exports = class StockController {
     }
 
     try {
-      const transferringStockItem = await StockItem.findByPk(req.params.stockItemId, {
+      const transferringStockItem = await StockEntryItem.findByPk(req.params.stockItemId, {
         transaction: sequelizeTransaction
       });
 
       const receivingBranch = await Branch.findByPk(req.body.receivingBranchId, {
         transaction: sequelizeTransaction,
         include: [
-          { model: Stock, as: 'stocks' }
+          { model: StockEntry, as: 'stocks' }
         ]
       });
 
       // update and return target stock item.
-      let [receivingStockItem, isReceivingItemCreated] = await StockItem.findOrCreate({
+      let [receivingStockItem, isReceivingItemCreated] = await StockEntryItem.findOrCreate({
         defaults: {
           quantity: +req.body.quantity,
           availableQuantity: +req.body.quantity,
@@ -150,7 +152,7 @@ module.exports = class StockController {
       });
 
       if (!isReceivingItemCreated) {
-        await StockItem.update({
+        await StockEntryItem.update({
           availableQuantity: Sequelize.literal(`availableQuantity + ${req.body.quantity}`)
         }, {
           transaction: sequelizeTransaction,
@@ -158,7 +160,7 @@ module.exports = class StockController {
         });
       }
 
-      await StockItem.update({
+      await StockEntryItem.update({
         availableQuantity: Sequelize.literal(`availableQuantity - ${req.body.quantity}`)
       }, {
         transaction: sequelizeTransaction,

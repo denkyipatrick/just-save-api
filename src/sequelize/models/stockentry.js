@@ -1,6 +1,7 @@
 'use strict';
+
 module.exports = (sequelize, DataTypes) => {
-  const Stock = sequelize.define('Stock', {
+  const StockEntry = sequelize.define('StockEntry', {
     id: {
       primaryKey: true,
       type: DataTypes.UUID,
@@ -17,19 +18,19 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN
     }
   }, {});
-  Stock.associate = function(models) {
+  StockEntry.associate = function(models) {
     // associations can be defined here
-    Stock.hasMany(models.StockItem, {
+    StockEntry.hasMany(models.StockEntryItem, {
       as: 'items'
     });
 
-    Stock.belongsTo(models.Branch, {
+    StockEntry.belongsTo(models.Branch, {
       as: 'branch'
     });
 
-    Stock.belongsTo(models.Company, {
+    StockEntry.belongsTo(models.Company, {
       as: 'company'
     });
   };
-  return Stock;
+  return StockEntry;
 };
