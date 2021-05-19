@@ -5,7 +5,7 @@ const {
   Branch,
   Product,
   NewStaff,
-  StockItem,
+  CompanyStockItem,
   BranchProduct,
   OrderItem,
   sequelize,
@@ -31,7 +31,7 @@ module.exports = class CreateOrderController {
 
       // console.log(req.body.items);
 
-      const stockItems = await StockItem.findAll({
+      const stockItems = await CompanyStockItem.findAll({
         where: {
           id: req.body.items.map(item => item.stockItemId)
         },
@@ -75,7 +75,7 @@ module.exports = class CreateOrderController {
       stockItems.forEach(stockItem => {
         const cartItem = req.body.items.find(item => item.stockItemId === stockItem.id);
 
-        StockItem.update({
+        CompanyStockItem.update({
           quantitySold: Sequelize.literal(`quantitySold + ${cartItem.quantity}`),
           availableQuantity: Sequelize.literal(`availableQuantity - ${cartItem.quantity}`)
         }, {

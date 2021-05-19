@@ -21,7 +21,7 @@ module.exports = {
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
       references: {
-        table: 'Stocks',
+        table: 'CompanyStocks',
         field: 'id'
       }
     });

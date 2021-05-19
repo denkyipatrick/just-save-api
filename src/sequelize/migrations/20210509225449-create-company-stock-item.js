@@ -1,7 +1,7 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('StockItems', {
+    return queryInterface.createTable('CompanyStockItems', {
       id: {
         primaryKey: true,
         type: Sequelize.UUID,
@@ -13,7 +13,7 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
         references: {
-          model: 'Stocks',
+          model: 'CompanyStocks',
           key: 'id'
         }
       },
@@ -48,6 +48,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('StockItems');
+    return queryInterface.dropTable('CompanyStockItems');
   }
 };

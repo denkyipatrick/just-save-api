@@ -5,9 +5,9 @@ const {
     Product,
     BranchProduct,
     Branch,
-    Stock,
-    BranchStock,
-    StockItem,
+    CompanyStock,
+    CompanyBranchStock,
+    CompanyStockItem,
     StockEntry,
     StockEntryItem,
     sequelize,
@@ -122,13 +122,13 @@ module.exports = class StockEntryController {
             //     transaction: sequelizeTransaction,
             // });
 
-            const [activeStock, isActiveStockCreated] = await Stock.findOrCreate({
+            const [activeStock, isActiveStockCreated] = await CompanyStock.findOrCreate({
                 where: { isActive: true },
                 include: [
-                    { model: BranchStock, as: 'branchStock', where: {
+                    { model: CompanyBranchStock, as: 'branchStock', where: {
                         branchId: branch.id
                     }},
-                    { model: StockItem, as: 'items', include: ['product'] }
+                    { model: CompanyStockItem, as: 'items', include: ['product'] }
                 ],
                 transaction: sequelizeTransaction,
                 defaults: {
@@ -146,7 +146,7 @@ module.exports = class StockEntryController {
             }
 
             if(!isActiveStockCreated) {
-                await Stock.update({
+                await CompanyStock.update({
                     isActive: false,
                     dateClosed: new Date()
                 }, {
@@ -156,7 +156,7 @@ module.exports = class StockEntryController {
                     transaction: sequelizeTransaction
                 });
 
-                newStock = await Stock.create({
+                newStock = await CompanyStock.create({
                     isActive: true,
                     type: 'branch',
                     companyId: branch.companyId
@@ -165,7 +165,7 @@ module.exports = class StockEntryController {
                 });
             }
 
-            await BranchStock.create({
+            await CompanyBranchStock.create({
                 branchId: branch.id,
                 stockId: newStock.id
             }, {
@@ -203,7 +203,7 @@ module.exports = class StockEntryController {
                 }
             });
 
-            await StockItem.bulkCreate(newStockItems, {
+            await CompanyStockItem.bulkCreate(newStockItems, {
                 transaction: sequelizeTransaction
             });
 

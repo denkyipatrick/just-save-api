@@ -4,9 +4,9 @@ const { validationResult } = require('express-validator');
 const {
     Product,
     Branch,
-    Stock,
-    BranchStock,
-    StockItem,
+    CompanyStock,
+    CompanyBranchStock,
+    CompanyStockItem,
     sequelize,
     Sequelize
 } = require('../../sequelize/models/index');
@@ -15,12 +15,12 @@ module.exports = class StockController {
 
     static async fetchBranchStocks(req, res) {
         try {
-            const stocks = await Stock.findAll({
+            const stocks = await CompanyStock.findAll({
                 include: [
-                    { model: BranchStock, as: 'branchStock', include: ['branch'], where: {
+                    { model: CompanyBranchStock, as: 'branchStock', include: ['branch'], where: {
                         branchId: req.params.branchId
                     }},
-                    { model: StockItem, as: 'items', include: ['product'] }
+                    { model: CompanyStockItem, as: 'items', include: ['product'] }
                 ],
                 order: [['isActive', 'DESC']]
             });
@@ -34,11 +34,11 @@ module.exports = class StockController {
 
     static async fetchCompanyStocks(req, res) {
         try {
-            const stocks = await Stock.findAll({
+            const stocks = await CompanyStock.findAll({
                 where: { companyId: req.params.companyId },
                 include: [
-                    { model: BranchStock, as: 'branchStock', include: ['branch'] },
-                    { model: StockItem, as: 'items', include: ['product'] }
+                    { model: CompanyBranchStock, as: 'branchStock', include: ['branch'] },
+                    { model: CompanyStockItem, as: 'items', include: ['product'] }
                 ],
                 order: [['isActive', 'DESC']]
             });
@@ -52,15 +52,15 @@ module.exports = class StockController {
 
     static async fetchCompanyBranchActiveStocks(req, res) {
         try {
-            const stocks = await Stock.findAll({
+            const stocks = await CompanyStock.findAll({
                 where: {
                     type: 'branch',
                     isActive: true,
                     companyId: req.params.companyId
                 },
                 include: [
-                    { model: BranchStock, as: 'branchStock', include: ['branch'] },
-                    { model: StockItem, as: 'items', include: ['product'] }
+                    { model: CompanyBranchStock, as: 'branchStock', include: ['branch'] },
+                    { model: CompanyStockItem, as: 'items', include: ['product'] }
                 ],
             });
 
@@ -73,13 +73,13 @@ module.exports = class StockController {
 
     static async fetchStock(req, res) {
         try {
-            const stock = await Stock.findOne({
+            const stock = await CompanyStock.findOne({
                 where: {
                     id: req.params.stockId
                 },
                 include: [
-                    { model: BranchStock, as: 'branchStock', include: ['branch'] },
-                    { model: StockItem, as: 'items', include: ['product'] }
+                    { model: CompanyBranchStock, as: 'branchStock', include: ['branch'] },
+                    { model: CompanyStockItem, as: 'items', include: ['product'] }
                 ]
             });
 
@@ -92,13 +92,13 @@ module.exports = class StockController {
 
     static async fetchBranchActiveStock(req, res) {
         try {
-            const activeStock = await Stock.findOne({
+            const activeStock = await CompanyStock.findOne({
                 where: { isActive: true },
                 include: [
-                    { model: BranchStock, as: 'branchStock', include: ['branch'], where: {
+                    { model: CompanyBranchStock, as: 'branchStock', include: ['branch'], where: {
                         branchId: req.params.branchId
                     } },
-                    { model: StockItem, as: 'items', include: ['product'] }
+                    { model: CompanyStockItem, as: 'items', include: ['product'] }
                 ]
             });
 

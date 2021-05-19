@@ -1,7 +1,7 @@
 'use strict';
 
 const { body } = require('express-validator');
-const { Order, StockItem } = require('../sequelize/models/index');
+const { Order, CompanyStockItem } = require('../sequelize/models/index');
 
 const validators = [
     body('items')
@@ -14,9 +14,9 @@ const validators = [
 
         console.log(req.body.items);
 
-        const stockItems = await StockItem.findAll({
+        const stockItems = await CompanyStockItem.findAll({
             where: {
-            id: req.body.items.map(item => item.stockItemId)
+              id: req.body.items.map(item => item.stockItemId)
             },
             include: ['product']
         });

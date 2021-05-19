@@ -1,6 +1,6 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const BranchStock = sequelize.define('BranchStock', {
+  const CompanyBranchStock = sequelize.define('CompanyBranchStock', {
     id: {
       primaryKey: true,
       type: DataTypes.UUID,
@@ -17,17 +17,17 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     timestamps: false
   });
-  BranchStock.associate = function(models) {
+  CompanyBranchStock.associate = function(models) {
     // associations can be defined here
-    BranchStock.belongsTo(models.Stock, {
+    CompanyBranchStock.belongsTo(models.CompanyStock, {
       as: 'stock',
       foreignKey: 'stockId'
     });
 
-    BranchStock.belongsTo(models.Branch, {
+    CompanyBranchStock.belongsTo(models.Branch, {
       as: 'branch',
       foreignKey: 'branchId'
     });
   };
-  return BranchStock;
+  return CompanyBranchStock;
 };
