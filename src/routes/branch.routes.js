@@ -7,7 +7,9 @@ const controllers = require('../controllers/index');
 module.exports = app => {
   app.post(`${BRANCHES_URL}`, controllers.CreateBranchController.create);
   app.get(`${BRANCHES_URL}`, controllers.FetchBranchesController.fetchAll);
-  app.get(`${BRANCHES_URL}/:id/stocks`, controllers.StockEntryController.fetchBranchStocks);
+  app.get(`${BRANCHES_URL}/:branchId/stocks`, controllers.StockController.fetchBranchStocks);
+  app.get(`${BRANCHES_URL}/:branchId/active-stock`, controllers.StockController.fetchBranchActiveStock);
+  app.get(`${BRANCHES_URL}/:id/stock-entries`, controllers.StockEntryController.fetchBranchStockEntries);
   app.get(`${BRANCHES_URL}/:branchId/orders`, controllers.OrderController.fetchBranchOrders);
   app.get(`${BRANCHES_URL}/:branchId/staffs`, controllers.FetchBranchStaffs.fetchAllStaffs);
   app.get(`${BRANCHES_URL}/:branchId/products`, controllers.BranchProductController.fetchBranchProducts);

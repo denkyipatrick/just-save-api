@@ -26,26 +26,7 @@ module.exports = class StockController {
 
     try {
       const stockItem = await StockEntryItem.findByPk(req.params.stockItemId, {
-        include: ['product', 'stock']
-      });
-
-      await BranchProduct.update({
-        quantity: Sequelize.literal(`quantity - ${stockItem.quantity}`)
-      }, {
-        transaction: sequelizeTransaction,
-        where: {
-          productId: stockItem.productId,
-          branchId: stockItem.stock.branchId
-        }
-      });
-
-      await Product.update({
-        quantity: Sequelize.literal(`quantity - ${stockItem.quantity}`)
-      }, {
-        transaction: sequelizeTransaction,
-        where: {
-          id: stockItem.product.id
-        }
+        include: ['product', 'stockEntry']
       });
 
       await StockEntryItem.destroy({
@@ -80,8 +61,6 @@ module.exports = class StockController {
         const stockEntry = await StockEntry.findByPk(req.body.stockId, {
           transaction: sequelizeTransaction
         });
-
-        console.log(stockEntry);
 
         if(req.validationInput && req.validationInput.isItemPartOfStock) {
           stockEntryItem = await StockEntryItem.update({

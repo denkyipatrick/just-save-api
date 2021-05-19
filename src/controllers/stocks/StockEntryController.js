@@ -5,13 +5,16 @@ const {
     Product,
     BranchProduct,
     Branch,
+    Stock,
+    BranchStock,
+    StockItem,
     StockEntry,
     StockEntryItem,
     sequelize,
     Sequelize
 } = require('../../sequelize/models/index');
 
-module.exports = class StockController {
+module.exports = class StockEntryController {
     static async fetchAll(req, res) {
         res.send(await StockEntry.findAll({
             include: ['branch']
@@ -38,7 +41,7 @@ module.exports = class StockController {
         }
     }
 
-    static async fetchBranchStocks(req, res) {
+    static async fetchBranchStockEntries(req, res) {
         res.send(await StockEntry.findAll({
             where: { branchId: req.params.id },
             order: [['createdAt', 'DESC']],
@@ -49,12 +52,12 @@ module.exports = class StockController {
         }));
     }
 
-    static async fetchCompanyStocks(req, res) {
+    static async fetchCompanyStockEntries(req, res) {
         console.log(req.params);
         try {
             res.send(await StockEntry.findAll({
                 where: { companyId: req.params.companyId },
-                order: [['createdAt', 'DESC']],
+                order: [['isOpened', 'DESC'], ['createdAt', 'DESC']],
                 include: [
                     'branch',
                     { model: StockEntryItem, as: 'items', include: ['product'] }
@@ -93,14 +96,14 @@ module.exports = class StockController {
         }
     }
 
-    static async closeStock(req, res) {
+    static async closeStockEntry(req, res) {
         const sequelizeTransaction = await sequelize.transaction();
 
         try {
             const stockEntry = await StockEntry.findByPk(req.params.id, {
                 transaction: sequelizeTransaction,
                 include: [
-                    { model: StockEntryItem, as: 'items' }
+                    { model: StockEntryItem, as: 'items', include: ['product'] }
                 ]
             });
 
@@ -108,40 +111,101 @@ module.exports = class StockController {
                 transaction: sequelizeTransaction,
             });
 
-            for (const item of stockEntry.items) {
-                const [branchProduct, isBranchProductCreated] =
-                await BranchProduct.findOrCreate({
+            // const activeStock = await Stock.findOne({
+            //     where: { isActive: true },
+            //     include: [
+            //         { model: BranchStock, as: 'branchStock', where: {
+            //             branchId: branch.id
+            //         }},
+            //         { model: StockItem, as: 'items', include: ['product'] }
+            //     ],
+            //     transaction: sequelizeTransaction,
+            // });
+
+            const [activeStock, isActiveStockCreated] = await Stock.findOrCreate({
+                where: { isActive: true },
+                include: [
+                    { model: BranchStock, as: 'branchStock', where: {
+                        branchId: branch.id
+                    }},
+                    { model: StockItem, as: 'items', include: ['product'] }
+                ],
+                transaction: sequelizeTransaction,
+                defaults: {
+                    isActive: true,
+                    type: 'branch',
+                    companyId: branch.companyId
+                }
+            });
+
+            let newStock = null;
+
+            if (isActiveStockCreated) {
+                activeStock.setDataValue('items', []);
+                newStock = activeStock;
+            }
+
+            if(!isActiveStockCreated) {
+                await Stock.update({
+                    isActive: false,
+                    dateClosed: new Date()
+                }, {
                     where: {
-                        branchId: branch.id,
-                        productId: item.productId,
-                    },
-                    defaults: {
-                        branchId: branch.id,
-                        quantity: item.quantity,
-                        productId: item.productId
+                        id: activeStock.id
                     },
                     transaction: sequelizeTransaction
                 });
 
-                if(!isBranchProductCreated) {
-                    await BranchProduct.update({
-                        quantity: Sequelize.literal(`quantity + ${item.quantity}`)
-                    }, {
-                        transaction: sequelizeTransaction,
-                        where: {
-                            branchId: branch.id,
-                            productId: item.productId,
-                        }
-                    });
-                }
-
-                await Product.update({
-                    quantity: Sequelize.literal(`quantity + ${item.quantity}`)
+                newStock = await Stock.create({
+                    isActive: true,
+                    type: 'branch',
+                    companyId: branch.companyId
                 }, {
-                    transaction: sequelizeTransaction,
-                    where: { id: item.productId }
+                    transaction: sequelizeTransaction
                 });
             }
+
+            await BranchStock.create({
+                branchId: branch.id,
+                stockId: newStock.id
+            }, {
+                transaction: sequelizeTransaction
+            });
+
+            let newStockItems = stockEntry.items.map(item => {
+                return {
+                    name: item.product.name,
+                    stockId: newStock.id,
+                    productId: item.product.id,
+                    quantityStocked: item.quantity,
+                    availableQuantity: item.quantity
+                }
+            });
+
+            activeStock.items && activeStock.items.forEach(stockItem => {
+                let newStockItem = newStockItems.find(item => item.productId ===
+                    stockItem.product.id);
+
+                if (newStockItem) {
+                    newStockItem.quantityFromPreviousStock = stockItem.availableQuantity;
+                    newStockItem.availableQuantity =
+                        newStockItem.quantityStocked + stockItem.availableQuantity;
+                } else {
+                    newStockItem = {
+                        productName: stockItem.product.name,
+                        stockId: newStock.id,
+                        productId: stockItem.product.id,
+                        quantityFromPreviousStock: stockItem.availableQuantity,
+                        availableQuantity: stockItem.availableQuantity
+                    }
+
+                    newStockItems.push(newStockItem);
+                }
+            });
+
+            await StockItem.bulkCreate(newStockItems, {
+                transaction: sequelizeTransaction
+            });
 
             await StockEntry.update({
                 isOpened: false
@@ -152,12 +216,13 @@ module.exports = class StockController {
                 }
             });
 
+            // sequelizeTransaction.rollback();
             sequelizeTransaction.commit();
             res.send(stockEntry);
         } catch(error) {
             sequelizeTransaction.rollback();
             res.sendStatus(500);
-            console.error(error)
+            console.error(error);
         }
     }
 

@@ -49,10 +49,10 @@ const deleteValidators = [
     .bail()
     .custom(async (value, { req }) => {
         const stockItem = await StockEntryItem.findByPk(value, {
-            include: ['stock']
+            include: ['stockEntry']
         });
 
-        if (stockItem && !stockItem.stock.isOpened) {
+        if (stockItem && !stockItem.stockEntry.isOpened) {
             return Promise.reject("Stock is closed.");
         }
     })

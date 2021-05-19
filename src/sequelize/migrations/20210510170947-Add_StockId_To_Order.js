@@ -9,17 +9,23 @@ module.exports = {
       Example:
       return queryInterface.createTable('users', { id: Sequelize.INTEGER });
     */
-   return queryInterface.addConstraint('StockItems', {
+   return queryInterface.addColumn('Orders', 'stockId', {
+     type: Sequelize.UUID,
+     collate: 'utf8mb4_bin'
+   })
+   .then(() => {
+    return queryInterface.addConstraint('Orders', {
+      fields: ['stockId'],
       type: 'FOREIGN KEY',
-      fields: ['stockEntryId'],
-      name: 'stock_entry_stock_entry_items_fk',
+      name: 'stock_to_orders_fk',
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
       references: {
-        field: 'id',
-        table: 'StockEntries'
+        table: 'Stocks',
+        field: 'id'
       }
-   });
+    });
+   })
   },
 
   down: (queryInterface, Sequelize) => {
@@ -30,9 +36,9 @@ module.exports = {
       Example:
       return queryInterface.dropTable('users');
     */
-    return queryInterface.removeConstraint(
-      'StockItems',
-      'stock_entry_stock_entry_items_fk'
-    );
+   return queryInterface.removeColumn('Orders', 'stockId')
+   .then(() => {
+    return queryInterface.removeConstraint('Orders', 'stock_to_orders_fk')
+   })
   }
 };

@@ -41,7 +41,10 @@ module.exports = app => {
     }
   });
 
-  app.get(`${COMPANIES_URL}/:companyId/stocks`, controllers.StockEntryController.fetchCompanyStocks);
+  app.get(`${COMPANIES_URL}/:companyId/stocks`, controllers.StockController.fetchCompanyStocks);
+  app.get(`${COMPANIES_URL}/:companyId/branch-active-stocks`,
+    controllers.StockController.fetchCompanyBranchActiveStocks);
+  app.get(`${COMPANIES_URL}/:companyId/stock-entries`, controllers.StockEntryController.fetchCompanyStockEntries);
   app.get(`${COMPANIES_URL}/:companyId/orders`, controllers.OrderController.fetchCompanyOrders);
 
   app.get(`${COMPANIES_URL}/:id/branches`, async(req, res) => {

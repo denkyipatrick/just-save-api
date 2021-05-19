@@ -2,47 +2,42 @@
 
 const {
   Order,
+  Branch,
   Product,
   NewStaff,
+  StockItem,
   BranchProduct,
   OrderItem,
   sequelize,
   Sequelize
 } = require('../../sequelize/models/index');
 
+const { validationResult } = require('express-validator');
+
 module.exports = class CreateOrderController {
   static async create(req, res) {
     const sequelizeTransaction = await sequelize.transaction();
+
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      console.log(errors);
+      return res.status(400).send(errors);
+    }
+
     try {
-      let someItemsAreInsufficient = false;
-      let insufficientQuantityErrorMessages = [];
+      // let someItemsAreInsufficient = false;
+      // let insufficientQuantityErrorMessages = [];
 
-      for (const item of req.body.items) {
-        const branchProduct = await BranchProduct.findOne({
-          transaction: sequelizeTransaction,
-          where: {
-            branchId: item.branchProduct.branchId,
-            productId: item.branchProduct.productId
-          },
-          include: ['product']
-        });
+      // console.log(req.body.items);
 
-        if (branchProduct.quantity < item.quantity) {
-          someItemsAreInsufficient = true;
-          const errorMessage = {
-            productName: branchProduct.product.name,
-            availableQuantity: branchProduct.quantity
-          }
-
-          insufficientQuantityErrorMessages.push(errorMessage)
-        }
-      }
-
-      if (someItemsAreInsufficient) {
-        res.status(400).send({items: JSON.stringify(insufficientQuantityErrorMessages)});
-        sequelizeTransaction.rollback();
-        return;
-      }
+      const stockItems = await StockItem.findAll({
+        where: {
+          id: req.body.items.map(item => item.stockItemId)
+        },
+        include: ['product'],
+        transaction: sequelizeTransaction
+      });
 
       const staff = await NewStaff.findByPk(req.body.staffId,{
         transaction: sequelizeTransaction,
@@ -53,68 +48,56 @@ module.exports = class CreateOrderController {
       });
 
       let order = await Order.create({
+        stockId: req.body.stockId,
         staffId: req.body.staffId,
         companyId: req.body.companyId,
         branchId: staff.staffBranch.branchId
       }, { transaction: sequelizeTransaction });
 
       const cartItems = req.body.items.map(item => {
+        const stockItem = stockItems.find(stockItem => stockItem.id === item.stockItemId);
+
         return {
           orderId: order.id,
           salePrice: +item.soldPrice,
           quantityOrdered: +item.quantity,
-          productId: item.branchProduct.product.id,
-          productBranchId: item.branchProduct.branchId,
-          orderItemCostPrice: +item.branchProduct.product.costPrice,
-          orderItemSellingPrice: +item.branchProduct.product.sellingPrice
+          productId: stockItem.product.id,
+          // productBranchId: item.stockItem.branchId,
+          orderItemCostPrice: +stockItem.product.costPrice,
+          orderItemSellingPrice: +stockItem.product.sellingPrice
         }
       });
 
-      const orderedItems = await OrderItem.bulkCreate(cartItems, {
+      await OrderItem.bulkCreate(cartItems, {
         transaction: sequelizeTransaction
       });
 
-      for(const orderedItem of orderedItems) {
-        await BranchProduct.update({
-          quantity: Sequelize.literal(`quantity - ` +
-          `${orderedItem.quantityOrdered}`)
-        }, {
-          transaction: sequelizeTransaction,
-          where: {
-            productId: orderedItem.productId,
-            branchId: orderedItem.productBranchId
-          }
-        });
+      stockItems.forEach(stockItem => {
+        const cartItem = req.body.items.find(item => item.stockItemId === stockItem.id);
 
-        await Product.update({
-          quantity: Sequelize.literal(`quantity - ` +
-          `${orderedItem.quantityOrdered}`)
+        StockItem.update({
+          quantitySold: Sequelize.literal(`quantitySold + ${cartItem.quantity}`),
+          availableQuantity: Sequelize.literal(`availableQuantity - ${cartItem.quantity}`)
         }, {
-          transaction: sequelizeTransaction,
           where: {
-            id: orderedItem.productId
-          }
+            id: stockItem.id
+          },
+          transaction: sequelizeTransaction
         });
-      }
-
-      const orderItems = await OrderItem.findAll({
-        transaction: sequelizeTransaction,
-        where: {
-          id: { [Sequelize.Op.in]: orderedItems.map(item => item.id) }
-        },
-        include: ['product']
       });
 
       order = await Order.findByPk(order.id, {
         transaction: sequelizeTransaction,
         include: [
           { model: NewStaff, as: 'staff' },
+          { model: Branch, as: 'branch' },
           { model: OrderItem, as: 'items', include: ['product'] }
         ]
       });
 
-      order.setDataValue('items', orderItems);
+      // order.setDataValue('items', orderItems);
       sequelizeTransaction.commit();
+      // sequelizeTransaction.rollback();
       res.status(201).send(order);
     } catch (error) {
       sequelizeTransaction.rollback();

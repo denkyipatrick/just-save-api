@@ -15,6 +15,9 @@ module.exports = (sequelize, DataTypes) => {
   branchId: {
     type: DataTypes.UUID
   },
+  stockId: {
+    type: DataTypes.UUID
+  }
   }, {});
   Order.associate = function(models) {
     // associations can be defined here

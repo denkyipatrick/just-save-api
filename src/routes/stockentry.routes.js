@@ -1,21 +1,21 @@
 'use strict';
 
 const BASE_URL = process.env.BASE_URL;
-const STOCKS_URL = `${BASE_URL}/stocks`;
+const STOCK_ENTRIES_URL = `${BASE_URL}/stock-entries`;
 
 const controllers = require('../controllers/index');
-const validators = require('../validators/StockValidators');
+const validators = require('../validators/StockEntryValidators');
 
 module.exports = app => {
-  app.route(STOCKS_URL).get(controllers.StockEntryController.fetchAll);
-  app.route(`${STOCKS_URL}/:id`).get(controllers.StockEntryController.fetchOne);
-  app.patch(`${STOCKS_URL}/:id/close`, controllers.StockEntryController.closeStock);
+  app.route(STOCK_ENTRIES_URL).get(controllers.StockEntryController.fetchAll);
+  app.route(`${STOCK_ENTRIES_URL}/:id`).get(controllers.StockEntryController.fetchOne);
+  app.patch(`${STOCK_ENTRIES_URL}/:id/close`, controllers.StockEntryController.closeStockEntry);
   app.post(
-    STOCKS_URL,
+    STOCK_ENTRIES_URL,
     validators.postValidators,
     controllers.StockEntryController.createStock);
   app.delete(
-    `${STOCKS_URL}/:stockId`,
+    `${STOCK_ENTRIES_URL}/:stockId`,
     validators.deleteValidators,
     controllers.StockEntryController.deleteStock);
 };

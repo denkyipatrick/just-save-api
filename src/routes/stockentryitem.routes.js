@@ -3,7 +3,7 @@
 const BASE_URL = process.env.BASE_URL;
 const STOCK_ITEMS_URL = `${BASE_URL}/stockitems`;
 const controllers = require('../controllers/index');
-const validators = require('../validators/StockItemValidators');
+const validators = require('../validators/StockEntryItemValidators');
 
 module.exports = app => {
   app.post(

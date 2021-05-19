@@ -9,20 +9,20 @@ module.exports = (sequelize, DataTypes) => {
     productId: {
       type: DataTypes.UUID
     },
-    stockId: {
-      type: DataTypes.UUID
-    },
     stockEntryId: {
       type: DataTypes.UUID
     },
     quantity: {
+      defaultValue: 0,
       type: DataTypes.INTEGER
     },
     availableQuantity: {
       type: DataTypes.INTEGER,
       defaultValue: 0
     }
-  }, {});
+  }, {
+    timestamps: false
+  });
   StockEntryItem.associate = function(models) {
     // associations can be defined here
     StockEntryItem.belongsTo(models.Product, {
