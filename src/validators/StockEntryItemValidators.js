@@ -28,7 +28,7 @@ const postValidators = [
                 'product'
             ],
             where: {
-                stockId: req.body.stockId,
+                stockEntryId: req.body.stockId,
                 "$product.id$": req.body.productId
             }
         });
