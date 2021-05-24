@@ -97,6 +97,14 @@ module.exports = class StockEntryController {
     }
 
     static async closeStockEntry(req, res) {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            console.log(errors);
+            return res.status(400).send(errors);
+        }
+
+
         const sequelizeTransaction = await sequelize.transaction();
 
         try {

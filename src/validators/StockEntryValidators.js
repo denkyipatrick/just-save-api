@@ -55,28 +55,42 @@ const postValidators = [
     .withMessage()
 ];
 
-const deleteValidators = [
-    param('stockId')
-    .notEmpty()
-    .withMessage("Stock id is required.")
-    .bail(),
-    body('hasItems')
-    .custom(async (value, { req }) => {
-        const stockEntry = await stockEntry.findByPk(req.params.stockId, {
+const closeEntryValidators = [
+    body('has_no_items')
+    .custom(async (_, {req}) => {
+        const entry = await StockEntry.findByPk(req.params.id, {
             include: ['items']
         });
 
-        if (!stockEntry) {
-            return Promise.reject("Stock is not found.");
-        }
-
-        if (stockEntry.items.length) {
-            return Promise.reject("Stock has items.");
+        if (!entry.items.length) {
+            return Promise.reject("You cannot close an empty stock entry")
         }
     })
 ]
 
+const deleteValidators = [
+    param('stockId')
+    .notEmpty()
+    .withMessage("Stock id is required.")
+    .bail()
+    // body('hasItems')
+    // .custom(async (value, { req }) => {
+    //     const stockEntry = await StockEntry.findByPk(req.params.stockId, {
+    //         include: ['items']
+    //     });
+
+    //     if (!stockEntry) {
+    //         return Promise.reject("Stock is not found.");
+    //     }
+
+    //     if (stockEntry.items.length) {
+    //         return Promise.reject("Stock has items.");
+    //     }
+    // })
+]
+
 module.exports = {
     postValidators,
-    deleteValidators
+    deleteValidators,
+    closeEntryValidators,
 };

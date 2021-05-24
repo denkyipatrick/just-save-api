@@ -9,7 +9,9 @@ const validators = require('../validators/StockEntryValidators');
 module.exports = app => {
   app.route(STOCK_ENTRIES_URL).get(controllers.StockEntryController.fetchAll);
   app.route(`${STOCK_ENTRIES_URL}/:id`).get(controllers.StockEntryController.fetchOne);
-  app.patch(`${STOCK_ENTRIES_URL}/:id/close`, controllers.StockEntryController.closeStockEntry);
+  app.patch(`${STOCK_ENTRIES_URL}/:id/close`,
+    validators.closeEntryValidators,
+    controllers.StockEntryController.closeStockEntry);
   app.post(
     STOCK_ENTRIES_URL,
     validators.postValidators,
