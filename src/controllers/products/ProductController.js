@@ -11,8 +11,9 @@ module.exports = class ProductController {
 
         try {
             const [product, isProductCreated] = await Product.findOrCreate({
+                transaction: sequelizeTransaction,
                 where: {
-                    lookupKey: req.body.lookupKey,
+                    lookupKey: req.body.lookupKey
                 },
                 defaults: {
                     quantity: 0,
@@ -22,12 +23,11 @@ module.exports = class ProductController {
                     lookupKey: req.body.lookupKey.toUpperCase(),
                     unitPrice: req.body.unitPrice || req.body.sellingPrice,
                     sellingPrice: req.body.sellingPrice || req.body.unitPrice,
-                },
-                transaction: sequelizeTransaction,
+                }
             });
 
-            res.status(201).send(product);
             sequelizeTransaction.commit();
+            res.status(201).send(product);
         } catch (error) {
             sequelizeTransaction.rollback();
             res.sendStatus(500);

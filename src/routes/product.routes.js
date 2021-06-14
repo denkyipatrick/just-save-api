@@ -6,12 +6,6 @@ const controllers = require('../controllers/index');
 const { Product, Branch, BranchProduct, Sequelize, sequelize } = require('../sequelize/models/index');
 
 module.exports = app => {
-  app.put(`${PRODUCTS_URL}/:productId/change-name`,
-    controllers.UpdateProductNameController.changeName);
-
-  app.put(`${PRODUCTS_URL}/:productId/change-price`,
-  controllers.UpdateProductPriceController.changePrice);
-
   app.get(`${PRODUCTS_URL}`, async(req, res) => {
     try {
       const products = await Product.findAll({
@@ -66,4 +60,10 @@ module.exports = app => {
   });
 
   app.post(`${PRODUCTS_URL}`, controllers.ProductController.createProduct);
+
+  app.put(`${PRODUCTS_URL}/:productId/change-name`,
+    controllers.UpdateProductNameController.changeName);
+
+  app.put(`${PRODUCTS_URL}/:productId/change-price`,
+  controllers.UpdateProductPriceController.changePrice);
 };
