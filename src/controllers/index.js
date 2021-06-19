@@ -10,9 +10,10 @@ const FetchCompanyOrdersController = require('./companies/FetchCompanyOrdersCont
 const BranchProductController = require('./branchproducts/BranchProductController')
 const ProductController = require('./products/ProductController');
 const StockController = require('./stocks/StockController');
+const StockItemController = require('./stocks/StockItemController');
 const StockEntryController = require('./stocks/StockEntryController');
-const StockEntryItemController = require('./stocks/StockEntryItemController');
 const OrderController = require('./orders/OrderController');
+const StockEntryItemController = require('./stocks/StockEntryItemController');
 
 // Staff Controllers
 const CreateStaffController = require('./staffs/CreateStaffController');
@@ -29,6 +30,7 @@ module.exports = {
 
   OrderController,
   StockController,
+  StockItemController,
   StockEntryController,
   ProductController,
   StockEntryItemController,
